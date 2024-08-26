@@ -1,8 +1,12 @@
+import "@/style/tiptap.css"
+
 import { ElementObjectCssStyle } from "@/types/general";
-import { Layout, Typography, theme as AntdTheme, Button, Flex, Divider } from "antd";
+import { Layout, Typography, theme as AntdTheme, Button, Flex } from "antd";
 import { FormOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PicCenterOutlined, PicLeftOutlined, } from '@ant-design/icons'
 import { useState } from "react";
-
+import Placeholder from "@tiptap/extension-placeholder";
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
 export default function Note() {
     const { token } = AntdTheme.useToken()
     const STYLE = {
@@ -18,11 +22,9 @@ export default function Note() {
         },
 
         flex1Header: {
-
-            borderBottom: `1px solid ${token.colorBorderSecondary}`,
             height: '65px',
             padding: token.paddingXS,
-            borderRight: `1px solid ${token.colorBorderSecondary}`
+
         },
 
         title1Header: {
@@ -46,27 +48,53 @@ export default function Note() {
         },
 
         siderNote: {
-            backgroundColor: token.colorBgContainer,
-            borderRight: `1px solid ${token.colorBorderSecondary}`,
+            backgroundColor: token.colorBgLayout,
             minWidth: "300px"
         },
 
         bodyLayout: {
             backgroundColor: token.colorWhite
+        },
+
+        contentLayout: {
+            padding: token.paddingSM
+        },
+
+        editor: {
+            width: "100%",
+            minHeight: "50vh"
         }
     } satisfies ElementObjectCssStyle
 
+    const extensions = [StarterKit, Placeholder.configure({
+        placeholder: "Write your note ...",
+
+    })]
+    const editor = useEditor({
+        extensions,
+        editorProps: {
+            attributes: {
+                class: "tiptap-height tiptap"
+            }
+        }
+    })
+
     const [showSiderSetting, setShowSiderSetting] = useState<boolean>(true)
     const [showSiderNote, setShowSiderNote] = useState<boolean>(false)
-
 
     function handleShowSiderfSetting() {
         setShowSiderSetting(!showSiderSetting)
     }
 
+    function handleHideSiderSetting() {
+        setShowSiderSetting(true)
+    }
+
     function handleShowSiderNote() {
         setShowSiderNote(!showSiderNote)
+        setShowSiderSetting(true)
     }
+
     return (
         <Layout style={STYLE.layout}>
             <Layout.Sider width={"250px"} style={STYLE.siderNote} collapsible trigger={null} collapsed={showSiderNote} collapsedWidth={0}>
@@ -83,7 +111,8 @@ export default function Note() {
             <Layout.Sider width={"250px"} style={STYLE.sider} trigger={null} collapsible collapsed={showSiderSetting} collapsedWidth={0}>
                 dad
             </Layout.Sider>
-            <Layout style={STYLE.bodyLayout}>
+
+            <Layout style={STYLE.bodyLayout} >
                 <Layout.Header style={STYLE.header2}>
                     <Button onClick={handleShowSiderNote}>
                         {showSiderNote && <PicLeftOutlined />}
@@ -92,10 +121,8 @@ export default function Note() {
                     </Button>
                 </Layout.Header>
 
-
-                <Layout.Content>
-                    <h1>This is Header</h1>
-                    <p>This is content</p>
+                <Layout.Content style={STYLE.contentLayout} onClick={handleHideSiderSetting}>
+                    <EditorContent editor={editor} />
                 </Layout.Content>
             </Layout>
         </Layout>
