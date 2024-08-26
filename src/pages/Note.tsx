@@ -66,21 +66,42 @@ export default function Note() {
         }
     } satisfies ElementObjectCssStyle
 
-    const extensions = [StarterKit, Placeholder.configure({
-        placeholder: "Write your note ...",
+    const [showSiderSetting, setShowSiderSetting] = useState<boolean>(true)
+    const [showSiderNote, setShowSiderNote] = useState<boolean>(false)
+    const [titleNote, setTitleNote] = useState<string>('');
 
-    })]
+
+    const extensions = [
+        StarterKit,
+        Placeholder.configure({
+            placeholder: "Write your note ...",
+        })]
+
     const editor = useEditor({
         extensions,
         editorProps: {
             attributes: {
                 class: "tiptap-height tiptap"
             }
+        },
+        onUpdate({ editor }) {
+            const content = editor.getJSON();
+            if (content.content && content.content.length > 0) {
+                const firstNode = content.content[0]
+                if (firstNode.content) {
+                    const title = firstNode.content.filter(text => text.type == 'text').map(text => text.text).join("")
+                    if (title != titleNote) {
+                        setTitleNote(title)
+                    }
+
+                } else {
+                    setTitleNote("")
+                }
+            }
         }
     })
 
-    const [showSiderSetting, setShowSiderSetting] = useState<boolean>(true)
-    const [showSiderNote, setShowSiderNote] = useState<boolean>(false)
+
 
     function handleShowSiderfSetting() {
         setShowSiderSetting(!showSiderSetting)
@@ -122,6 +143,7 @@ export default function Note() {
                 </Layout.Header>
 
                 <Layout.Content style={STYLE.contentLayout} onClick={handleHideSiderSetting}>
+                    <h1>Title Note : {titleNote}</h1>
                     <EditorContent editor={editor} />
                 </Layout.Content>
             </Layout>
