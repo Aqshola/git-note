@@ -73,7 +73,13 @@ export default function Note() {
         },
         listItem: {
             padding: token.paddingSM,
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            cursor: 'pointer',
+        },
+        titleListItem: {
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+            whiteSpace: "nowrap"
         }
     } satisfies ElementObjectCssStyle
 
@@ -127,11 +133,19 @@ export default function Note() {
         setShowSiderSetting(true)
     }
 
+    function handleNewNote() {
+        noteStore.setLastVisit("")
+    }
+
+    function handleOpenNote(id: string) {
+        noteStore.setLastVisit(id)
+    }
+
 
     useEffect(() => {
         if (noteStore.lastVisited == '' || !noteStore.lastVisited) {
             const id = generateBase36ID()
-            setNoteData({ ...noteData, id })
+            setNoteData({ content: "", title: '', id })
             noteStore.setLastVisit(id)
             noteStore.addNote({ id, title: '', content: '' })
         } else {
@@ -152,12 +166,12 @@ export default function Note() {
                         {showSiderSetting && <MenuUnfoldOutlined />}
                     </Button>
                     <Typography.Text style={STYLE.title1Header}>All Note</Typography.Text>
-                    <Button><FormOutlined /></Button>
+                    <Button onClick={handleNewNote}><FormOutlined /></Button>
                 </Flex>
                 <div style={STYLE.listContainer}>
                     <List bordered locale={{ emptyText: "Empty notes" }} header={false} footer={false} dataSource={noteStore.notes} renderItem={(item: Note) => (
-                        <List.Item style={STYLE.listItem}>
-                            <Typography.Text>{item.title}</Typography.Text>
+                        <List.Item style={STYLE.listItem} onClick={() => handleOpenNote(item.id)}>
+                            <Typography.Text style={STYLE.titleListItem}>{item.title}</Typography.Text>
                         </List.Item>
                     )} />
                 </div>
