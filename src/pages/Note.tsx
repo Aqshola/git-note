@@ -1,13 +1,16 @@
 import "@/style/tiptap.css"
 
 import { ElementObjectCssStyle } from "@/types/general";
-import { Layout, Typography, theme as AntdTheme, Button, Flex } from "antd";
+import { Layout, Typography, theme as AntdTheme, Button, Flex, List } from "antd";
 import { FormOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PicCenterOutlined, PicLeftOutlined, } from '@ant-design/icons'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { Note, useNotesStore } from "@/stores/noteStore";
+import { generateBase36ID } from "@/utility/common";
 export default function Note() {
+    const noteStore = useNotesStore(state => state)
     const { token } = AntdTheme.useToken()
     const STYLE = {
         layout: {
@@ -63,12 +66,22 @@ export default function Note() {
         editor: {
             width: "100%",
             minHeight: "50vh"
+        },
+
+        listContainer: {
+            padding: token.paddingLG
+        },
+        listItem: {
+            padding: token.paddingSM,
+            fontWeight: 'bold'
         }
     } satisfies ElementObjectCssStyle
 
+
     const [showSiderSetting, setShowSiderSetting] = useState<boolean>(true)
     const [showSiderNote, setShowSiderNote] = useState<boolean>(false)
-    const [titleNote, setTitleNote] = useState<string>('');
+
+    const [noteData, setNoteData] = useState<Note>({ id: "", content: "", title: "" })
 
 
     const extensions = [
@@ -78,6 +91,7 @@ export default function Note() {
         })]
 
     const editor = useEditor({
+        content: noteData.content,
         extensions,
         editorProps: {
             attributes: {
@@ -86,21 +100,18 @@ export default function Note() {
         },
         onUpdate({ editor }) {
             const content = editor.getJSON();
+            let titleNote = ''
             if (content.content && content.content.length > 0) {
                 const firstNode = content.content[0]
                 if (firstNode.content) {
-                    const title = firstNode.content.filter(text => text.type == 'text').map(text => text.text).join("")
-                    if (title != titleNote) {
-                        setTitleNote(title)
-                    }
-
-                } else {
-                    setTitleNote("")
+                    titleNote = firstNode.content.filter(text => text.type == 'text').map(text => text.text).join("")
                 }
             }
+            const htmlContent = editor.getHTML()
+            setNoteData({ ...noteData, content: htmlContent, title: titleNote })
+            noteStore.updateNote({ id: noteData.id, content: htmlContent, title: titleNote })
         }
-    })
-
+    }, [noteData.id])
 
 
     function handleShowSiderfSetting() {
@@ -116,6 +127,22 @@ export default function Note() {
         setShowSiderSetting(true)
     }
 
+
+    useEffect(() => {
+        if (noteStore.lastVisited == '' || !noteStore.lastVisited) {
+            const id = generateBase36ID()
+            setNoteData({ ...noteData, id })
+            noteStore.setLastVisit(id)
+            noteStore.addNote({ id, title: '', content: '' })
+        } else {
+            const lastVisitedId = noteStore.lastVisited
+            const lastVisitedData = noteStore.getNoteByID(lastVisitedId)
+            if (lastVisitedData) {
+                setNoteData(lastVisitedData)
+            }
+        }
+    }, [noteStore.lastVisited])
+
     return (
         <Layout style={STYLE.layout}>
             <Layout.Sider width={"250px"} style={STYLE.siderNote} collapsible trigger={null} collapsed={showSiderNote} collapsedWidth={0}>
@@ -127,6 +154,13 @@ export default function Note() {
                     <Typography.Text style={STYLE.title1Header}>All Note</Typography.Text>
                     <Button><FormOutlined /></Button>
                 </Flex>
+                <div style={STYLE.listContainer}>
+                    <List bordered locale={{ emptyText: "Empty notes" }} header={false} footer={false} dataSource={noteStore.notes} renderItem={(item: Note) => (
+                        <List.Item style={STYLE.listItem}>
+                            <Typography.Text>{item.title}</Typography.Text>
+                        </List.Item>
+                    )} />
+                </div>
             </Layout.Sider>
 
             <Layout.Sider width={"250px"} style={STYLE.sider} trigger={null} collapsible collapsed={showSiderSetting} collapsedWidth={0}>
@@ -143,7 +177,6 @@ export default function Note() {
                 </Layout.Header>
 
                 <Layout.Content style={STYLE.contentLayout} onClick={handleHideSiderSetting}>
-                    <h1>Title Note : {titleNote}</h1>
                     <EditorContent editor={editor} />
                 </Layout.Content>
             </Layout>
