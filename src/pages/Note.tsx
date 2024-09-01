@@ -1,7 +1,7 @@
 import "@/style/tiptap.css"
 
 import { ElementObjectCssStyle } from "@/types/general";
-import { Layout, Typography, theme as AntdTheme, Button, Flex, List } from "antd";
+import { Layout, Typography, theme as AntdTheme, Button, Flex, List, Select } from "antd";
 import { FormOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PicCenterOutlined, PicLeftOutlined, } from '@ant-design/icons'
 import { useEffect, useState } from "react";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -40,6 +40,10 @@ export default function Note() {
 
         button1Header: {
 
+        },
+        flexHeader: { height: "100%" },
+        optionHeader: {
+            minWidth: "100px"
         },
         sider: {
             backgroundColor: token.colorBgContainer,
@@ -170,7 +174,7 @@ export default function Note() {
                 </Flex>
                 <div style={STYLE.listContainer}>
                     <List bordered locale={{ emptyText: "Empty notes" }} header={false} footer={false} dataSource={noteStore.notes} renderItem={(item: Note) => (
-                        <List.Item style={STYLE.listItem} onClick={() => handleOpenNote(item.id)}>
+                        <List.Item style={{ ...STYLE.listItem, backgroundColor: item.id == noteStore.lastVisited ? token.colorBgContainer : token.colorBgLayout }} onClick={() => handleOpenNote(item.id)}>
                             <Typography.Text style={STYLE.titleListItem}>{item.title}</Typography.Text>
                         </List.Item>
                     )} />
@@ -183,11 +187,13 @@ export default function Note() {
 
             <Layout style={STYLE.bodyLayout} >
                 <Layout.Header style={STYLE.header2}>
-                    <Button onClick={handleShowSiderNote}>
-                        {showSiderNote && <PicLeftOutlined />}
-                        {!showSiderNote && <PicCenterOutlined />}
-
-                    </Button>
+                    <Flex align="center" style={STYLE.flexHeader} justify="space-between" >
+                        <Button onClick={handleShowSiderNote}>
+                            {showSiderNote && <PicLeftOutlined />}
+                            {!showSiderNote && <PicCenterOutlined />}
+                        </Button>
+                        <Select options={[{ value: "note", label: "Note" }, { value: "canvas", label: "Canvas" }]} defaultValue={"note"} style={STYLE.optionHeader} />
+                    </Flex>
                 </Layout.Header>
 
                 <Layout.Content style={STYLE.contentLayout} onClick={handleHideSiderSetting}>
