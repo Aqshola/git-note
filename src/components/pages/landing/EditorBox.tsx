@@ -1,13 +1,13 @@
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, NodeProps, Position } from "reactflow";
 
 type FlowBox = {
   data: any;
   isConnectable: boolean;
 };
-export default function EditorBox({ data, isConnectable }: FlowBox) {
+export default function EditorBox({ data, isConnectable }: NodeProps) {
   const extensions = [
     StarterKit,
     Placeholder.configure({

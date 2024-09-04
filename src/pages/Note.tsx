@@ -17,8 +17,9 @@ import {
   useNodesState,
   Background,
   BackgroundVariant,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
+  Position,
+} from "reactflow";
+import "reactflow/dist/style.css";
 
 import EditorBox from "@/components/pages/landing/EditorBox";
 import { nanoid } from "nanoid";
@@ -125,7 +126,7 @@ export default function Note() {
         position: { x: 0, y: 0 },
         data: {},
         type: "editorBox",
-        targetPosition: "top",
+        targetPosition: Position.Top,
       },
     ]);
   }
