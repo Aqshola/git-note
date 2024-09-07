@@ -1,7 +1,7 @@
 import "@/style/tiptap.css";
 
 import { ElementObjectCssStyle } from "@/types/general";
-import { Button, Select } from "antd";
+import { Button, Result, Select } from "antd";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -23,6 +23,8 @@ import "reactflow/dist/style.css";
 
 import EditorBox from "@/components/pages/landing/EditorBox";
 import { nanoid } from "nanoid";
+import Image from "@tiptap/extension-image";
+import ImageResize from "tiptap-extension-resize-image";
 
 const initialNodes: any[] = [];
 const initialEdges: any[] = [];
@@ -65,9 +67,15 @@ export default function Note() {
 
   const extensions = [
     StarterKit,
+    Image.configure({
+      allowBase64: true,
+      inline: true,
+    }),
     Placeholder.configure({
       placeholder: "Write your note ...",
     }),
+
+    // ImageResize,
   ];
 
   const editor = useEditor(
@@ -102,6 +110,42 @@ export default function Note() {
     },
     [noteData.id]
   );
+
+  editor?.setOptions({
+    editorProps: {
+      handlePaste(_, event, __) {
+        const items = event.clipboardData?.items;
+        if (!items || items.length == 0) return false;
+        event.preventDefault();
+
+        const blob = items[0].getAsFile();
+        if (!blob) return false;
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+
+        reader.onload = (e) => {
+          if (!e.target) return false;
+          const dataUrl = e.target.result;
+          editor
+            .chain()
+            .focus()
+            .insertContent([
+              {
+                type: "image",
+                attrs: { src: dataUrl },
+              },
+              {
+                type: "paragraph",
+                content: "",
+              },
+            ])
+            .run();
+        };
+
+        return true;
+      },
+    },
+  });
 
   useEffect(() => {
     if (noteStore.lastVisited == "" || !noteStore.lastVisited) {
