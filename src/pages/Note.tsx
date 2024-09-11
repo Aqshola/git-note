@@ -1,7 +1,7 @@
 import "@/style/tiptap.css";
 
 import { ElementObjectCssStyle } from "@/types/general";
-import { Button, Result, Select } from "antd";
+import { Button, Result, Select, theme as AntdTheme, } from "antd";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -30,6 +30,7 @@ const initialNodes: any[] = [];
 const initialEdges: any[] = [];
 const nodeTypes = { editorBox: EditorBox };
 export default function Note() {
+  const { token } = AntdTheme.useToken();
   const noteStore = useNotesStore((state) => state);
   const STYLE = {
     optionHeader: {
@@ -46,6 +47,8 @@ export default function Note() {
       display: "block",
       position: "relative",
       minHeight: "100%",
+      padding: token.paddingSM,
+      backgroundColor: token.colorBgLayout
     },
   } satisfies ElementObjectCssStyle;
 
@@ -196,7 +199,7 @@ export default function Note() {
             Add Note
           </Button>
         )}
-        {modeNote == "note" && <EditorContent editor={editor} />}
+        {modeNote == "note" && <EditorContent editor={editor} style={{ backgroundColor: token.colorWhite, padding: token.paddingSM, minHeight: "85vh" }} />}
         {modeNote == "flow" && (
           <div
             style={{

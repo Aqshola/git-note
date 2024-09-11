@@ -34,8 +34,9 @@ export default function Layout(props: Readonly<LayoutProps>) {
     },
 
     siderNote: {
-      backgroundColor: token.colorBgLayout,
+      backgroundColor: token.colorWhite,
       minWidth: "300px",
+      borderRight: `2px solid ${token.colorBgLayout}`
     },
 
     buttonSiderNote: {},
@@ -54,6 +55,9 @@ export default function Layout(props: Readonly<LayoutProps>) {
     },
 
     listItem: {
+      backgroundColor: token.colorWhite,
+      borderBottom: `2px solid ${token.colorBgLayout}`,
+      outline: "none",
       padding: token.paddingSM,
       fontWeight: "bold",
       cursor: "pointer",
@@ -92,7 +96,6 @@ export default function Layout(props: Readonly<LayoutProps>) {
     },
 
     contentLayout: {
-      padding: token.paddingSM,
       width: "100%",
     },
   } satisfies ElementObjectCssStyle;
@@ -149,7 +152,7 @@ export default function Layout(props: Readonly<LayoutProps>) {
         </Flex>
         <div style={STYLE.listContainerNote}>
           <List
-            bordered
+
             locale={{ emptyText: "Empty notes" }}
             header={false}
             footer={false}
@@ -158,15 +161,21 @@ export default function Layout(props: Readonly<LayoutProps>) {
               <List.Item
                 style={{
                   ...STYLE.listItem,
-                  backgroundColor:
+                  backgroundColor: token.colorWhite,
+                  borderLeft:
                     item.id == noteStore.lastVisited
-                      ? token.colorBgContainer
-                      : token.colorBgLayout,
+                      ? `5px solid ${token["blue-5"]}`
+                      : `0px solid ${token.colorBorderSecondary}`,
                 }}
                 onClick={() => handleOpenNote(item.id)}
               >
-                <Typography.Text style={STYLE.titleListItem}>
-                  {item.title}
+                <Typography.Text style={{
+                  ...STYLE.titleListItem,
+                  color: item.id == noteStore.lastVisited && item.title ? token["blue-5"] : token.colorText,
+                  fontWeight: item.id == noteStore.lastVisited && item.title ? 'bold' : 'lighter',
+                  opacity: item.id == noteStore.lastVisited && item.title ? '100%' : "50%"
+                }} >
+                  {item.title || 'No title'}
                 </Typography.Text>
               </List.Item>
             )}
