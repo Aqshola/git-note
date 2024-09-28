@@ -1,3 +1,6 @@
+import Bulb from "@/components/animate/Bulb";
+import NewLabel from "@/components/animate/NewLabel";
+import TypingText from "@/components/animate/TypingText";
 import SketchButton from "@/components/base/button/SketchButton";
 import SketchLink from "@/components/base/link/SketchLink";
 import { RoughNotation } from "react-rough-notation";
@@ -18,14 +21,17 @@ export default function Landing2() {
 
             <div className="relative mt-36" >
                 <div className="w-fit mx-auto relative">
-                    <h1 className="text-8xl font-comic-neue font-bold text-purple-primary text-center">Notebuk</h1>
-                    <img src="/assets/svg/new.svg" alt="New!" className="absolute -top-16 left-0" />
-                    <img src="/assets/svg/bulb.svg" alt="Idea" className="absolute -top-5 -right-16" />
+                    <h1 className="text-7xl md:text-8xl font-comic-neue font-bold text-purple-primary text-center">
+                        <TypingText baseText="Notebuk" />
+
+                    </h1>
+                    <NewLabel className="absolute -top-16 left-0" />
+                    <Bulb className="absolute -top-12 -right-10 md:-top-5  md:-right-16" />
                 </div>
                 <div className="w-fit mx-auto mt-6">
                     <p className="font-comic-neue text-base md:text-xl text-center">Capture ideas
                         <span className="font-bold relative sketchy-bottom mx-1">
-                            <RoughNotation type="underline" show padding={0} multiline={false} strokeWidth={2}>
+                            <RoughNotation type="underline" show padding={0} multiline={false} strokeWidth={2} animationDuration={1000} animationDelay={1500}>
                                 anytime, anywhere
                             </RoughNotation>
 
