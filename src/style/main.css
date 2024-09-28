@@ -4,18 +4,12 @@
 @tailwind utilities;
 
 
-
-/* CUSTOM CSS */
-.sketchy {
-    border-top-left-radius: 355px 15px;
-    border-top-right-radius: 15px 225px;
-    border-bottom-right-radius: 325px 15px;
-    border-bottom-left-radius: 15px 255px;
-    border: solid 2px #41403E;
+@layer utilities {
+    .shadow-3d {
+        box-shadow: 2px 2px 0 0 black;
+    }
 }
 
-
-
-.left-530 {
-    left: 530px;
+svg {
+    display: block;
 }
