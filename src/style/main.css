@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* CUSTOM CSS */
+.sketchy {
+    border-top-left-radius: 355px 15px;
+    border-top-right-radius: 15px 225px;
+    border-bottom-right-radius: 325px 15px;
+    border-bottom-left-radius: 15px 255px;
+    border: solid 2px #41403E;
+}
+
+
+
+.left-530 {
+    left: 530px;
+}
