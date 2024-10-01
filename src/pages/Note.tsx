@@ -25,6 +25,7 @@ import EditorBox from "@/components/pages/landing/EditorBox";
 import { nanoid } from "nanoid";
 import Image from "@tiptap/extension-image";
 import ImageResize from "tiptap-extension-resize-image";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const initialNodes: any[] = [];
 const initialEdges: any[] = [];
@@ -62,6 +63,7 @@ export default function Note() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const router = useNavigate()
 
   const onConnect = useCallback(
     (connection: any) => setEdges((eds) => addEdge(connection, eds)),
@@ -199,6 +201,11 @@ export default function Note() {
             Add Note
           </Button>
         )}
+        <Button style={STYLE.buttonCanvas} onClick={() => {
+          router("/")
+        }}>
+          Add dadadd
+        </Button>
         {modeNote == "note" && <EditorContent editor={editor} style={{ backgroundColor: token.colorWhite, padding: token.paddingSM, minHeight: "85vh" }} />}
         {modeNote == "flow" && (
           <div
