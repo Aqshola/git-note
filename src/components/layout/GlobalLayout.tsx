@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Outlet, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import AnimatedOutlet from "../animate/AnimatedOutlet";
 
 export default function GlobalLayout() {
     const location = useLocation()
     return <AnimatePresence mode="wait">
 
-        <motion.div className="max-w-screen-2xl overflow-x-hidden" key={location.pathname}>
+        <motion.div className="max-w-screen-2xl overflow-x-hidden mx-auto" key={location.pathname}>
 
             <motion.div key={location.pathname}
                 initial={{ opacity: 0, x: 50 }}

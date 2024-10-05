@@ -11,7 +11,11 @@ export default {
       },
       colors: {
         'purple-primary': '#4D46DD',
-        'orange-primary': "#FFC04F"
+        'orange-primary': "#FFC04F",
+        'soft-white': "#FCFCFC",
+        'soft-gray': "#F6F6F6",
+        'line-gray': "#E0E0E0",
+        'write-gray': "#737373"
       }
     },
   },
