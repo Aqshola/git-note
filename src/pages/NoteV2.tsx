@@ -1,89 +1,12 @@
 import clsx from "clsx"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from 'framer-motion'
 import FolderTree from "@/components/base/tree/FolderTree";
+import { generateRandomId } from "@/common/generator";
+import { folderTreeType } from "@/types/note";
+import { createNewFolder, getListFolder, updateFolderName } from "@/service/noteService";
 
 export default function NoteV2() {
-    type folderTreeType = {
-        id: string
-        label: string
-        type: 'FILE' | 'FOLDER',
-        child: Array<folderTreeType>
-        counter?: number
-    }
-    const folderTree: folderTreeType[] = [
-        {
-            id: '1',
-            label: 'Root Folder',
-            type: 'FOLDER',
-            child: [
-                {
-                    id: '1-1',
-                    label: 'Sub Folder 1',
-                    type: 'FOLDER',
-                    child: [
-                        {
-                            id: '1-1-1',
-                            label: 'File 1-1',
-                            type: 'FILE',
-                            child: []
-                        }
-                    ],
-                    counter: 1
-                },
-                {
-                    id: '1-2',
-                    label: 'Sub Folder 2',
-                    type: 'FOLDER',
-                    child: [
-                        {
-                            id: '1-2-1',
-                            label: 'File 2-1',
-                            type: 'FILE',
-                            child: []
-                        },
-                        {
-                            id: '1-2-2',
-                            label: 'File 2-2',
-                            type: 'FILE',
-                            child: []
-                        }
-                    ],
-                    counter: 2
-                }
-            ],
-            counter: 2
-        },
-        {
-            id: '2',
-            label: 'Root File',
-            type: 'FILE',
-            child: []
-        },
-        {
-            id: '3',
-            label: 'Another Root Folder',
-            type: 'FOLDER',
-            child: [
-                {
-                    id: '3-1',
-                    label: 'Sub Folder 3',
-                    type: 'FOLDER',
-                    child: [
-                        {
-                            id: '3-1-1',
-                            label: 'File 3-1',
-                            type: 'FILE',
-                            child: []
-                        }
-                    ],
-                    counter: 1
-                }
-            ],
-            counter: 1
-        }
-    ];
-
     const iconNavAnimateVariant = {
         show: {
             x: 0,
@@ -107,16 +30,48 @@ export default function NoteV2() {
             paddingRight: 0,
         }
     }
-    const refNavbar = useRef<HTMLDivElement>(null)
+    const [showNav, setShowNav] = useState<boolean>()
+    const [folderTreeData, setFolderTreeData] = useState<folderTreeType[]>([])
+
+    useEffect(() => {
+        callGetListFolder()
+    }, [])
 
 
-    const [showNav, setShowNav] = useState<boolean>(false)
-
-
+    async function callGetListFolder() {
+        const data = await getListFolder()
+        setFolderTreeData(data)
+    }
 
     function toggleShowNav() {
         setShowNav(!showNav)
     }
+
+    async function addFolder() {
+        const id = generateRandomId()
+        const newFolder: folderTreeType = {
+            _id: id,
+            label: "Untitled",
+            type: "FOLDER",
+            counter: 1,
+            child: [],
+            rename: true,
+            open: false
+        }
+
+        await createNewFolder(newFolder)
+        await callGetListFolder()
+
+    }
+
+    async function renameFolder(id: string, name: string) {
+        await updateFolderName(id, name)
+        await callGetListFolder()
+    }
+
+
+
+
 
     return (
         <div className="h-screen flex flex-col">
@@ -146,7 +101,7 @@ export default function NoteV2() {
                     variants={navAnimateVariant}
                     animate={showNav ? 'show' : 'hide'}
                     className={
-                        clsx(" bg-soft-gray border border-line-gray border-r-purple-primary px-5 py-9 h-full overflow-x-hidden box-border",
+                        clsx(" bg-soft-gray border border-line-gray border-r-purple-primary px-5 py-9 h-full overflow-x-hidden",
                             "md:min-w-[250px] md:max-w-[500px] md:relative", 'absolute  w-screen',
 
                         )
@@ -158,7 +113,7 @@ export default function NoteV2() {
                             </svg>
 
                         </button>
-                        <button>
+                        <button onClick={addFolder}>
                             <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M7 9H13M10 6V12M1 13V3C1 1.89543 1.89543 1 3 1H9L11 3H17C18.1046 3 19 3.89543 19 5V13C19 14.1046 18.1046 15 17 15H3C1.89543 15 1 14.1046 1 13Z" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
@@ -168,8 +123,8 @@ export default function NoteV2() {
                     </div>
                     <div className="mt-10">
                         {
-                            folderTree.map((el, idx) => (
-                                <FolderTree label={el.label} child={el.child} type={el.type} key={el.id} id={el.id} />
+                            folderTreeData.map((el) => (
+                                <FolderTree folderData={el} callbackRename={renameFolder} key={el._id} />
                             ))
                         }
 
