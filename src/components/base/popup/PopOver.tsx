@@ -5,7 +5,8 @@ import { useRef, useState } from "react"
 import ReactDom from "react-dom";
 
 type Props = {
-    children: React.ReactNode
+    children: React.ReactNode,
+    buttonChildren: React.ReactNode
 }
 
 export default function Popover(props: Readonly<Props>) {
@@ -23,7 +24,7 @@ export default function Popover(props: Readonly<Props>) {
         const parentRect = refParentPopover.current.getBoundingClientRect()
         setLocation({
             ...location,
-            top: parentRect.top + parentRect.height,
+            top: parentRect.top + parentRect.height - 10,
             left: parentRect.left,
         })
         setVisible(!visible)
@@ -33,7 +34,7 @@ export default function Popover(props: Readonly<Props>) {
 
     return <div className="relative" ref={refParentPopover}>
         <button onClick={showPopOver}>
-            {props.children}
+            {props.buttonChildren}
         </button>
 
         {
@@ -47,7 +48,7 @@ export default function Popover(props: Readonly<Props>) {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             transition={{ duration: 0.2 }}
-                            className="p-2 bg-white absolute shadow-lg"
+                            className="p-3 bg-white absolute shadow-lg rounded border"
                             ref={refPopover}
                             style={{
                                 zIndex: 9999999,
@@ -55,9 +56,7 @@ export default function Popover(props: Readonly<Props>) {
                                 left: location.left,
                             }}
                         >
-                            <div>
-                                this is popover sadada
-                            </div>
+                            {props.children}
                         </motion.div>
                     )}
                 </AnimatePresence>

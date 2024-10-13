@@ -1,7 +1,7 @@
 import { generateRandomId } from '@/common/generator'
-import { createNewFolder, getListFolder, updateFolderName } from '@/service/noteService'
+import { createNewFolder, createNewSubFolder, getListFolder, testing, updateFolderName } from '@/service/noteService'
 import { useUiStore } from '@/stores/uiStore'
-import { folderTreeType } from '@/types/note'
+import { baseItem, folderTreeType, itemFromDB, } from '@/types/note'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -24,22 +24,23 @@ export default function Sidebar() {
     }
 
     const uiStore = useUiStore((state) => state)
-    const [folderTreeData, setFolderTreeData] = useState<folderTreeType[]>([])
+    const [folderTreeData, setFolderTreeData] = useState<itemFromDB[]>([])
 
     useEffect(() => {
         handleGetListFolder()
     }, [])
 
+    useEffect(() => {
+        testing()
+    }, [])
+
 
 
     async function handleAddFolder() {
-        const id = generateRandomId()
-        const newFolder: folderTreeType = {
-            _id: id,
+        const newFolder: baseItem = {
             label: "Untitled",
             type: "FOLDER",
             counter: 1,
-            child: [],
             rename: true,
             open: false
         }
@@ -48,9 +49,23 @@ export default function Sidebar() {
         await handleGetListFolder()
     }
 
+    async function handleAddSubFolder(id: string) {
+        const newFolder: baseItem = {
+            label: "Untitled",
+            type: "FOLDER",
+            counter: 1,
+            rename: true,
+            open: false
+        }
+
+        await createNewSubFolder(id, newFolder)
+        await handleGetListFolder()
+
+    }
+
     async function handleGetListFolder() {
         const data = await getListFolder()
-        setFolderTreeData(data)
+        // setFolderTreeData(data)
     }
 
     async function handleRenameFolder(id: string, name: string) {
@@ -68,10 +83,10 @@ export default function Sidebar() {
         variants={navAnimateVariant}
         animate={uiStore.sidebar == "SHOW" ? 'show' : 'hide'}
         className={
-            clsx("  border-r border-line-gray  px-5 py-9 h-full overflow-x-hidden",
-                "md:min-w-[250px] md:max-w-[400px] md:relative", 'absolute  w-screen',
+            clsx("border-r border-line-gray h-full  bg-white z-50 px-5 py-9",
+                "w-screen absolute top-0",
+                "md:min-w-[250px] md:max-w-[400px] md:relative")
 
-            )
         }>
         <div className="mx-auto w-fit flex gap-5">
             <button>
@@ -91,7 +106,7 @@ export default function Sidebar() {
         <div className="mt-10">
             {
                 folderTreeData.map((el) => (
-                    <FolderTree folderData={el} callbackRename={handleRenameFolder} key={el._id} />
+                    <FolderTree folderData={el} callbackRename={handleRenameFolder} key={el.id} callbackSubFolder={handleAddSubFolder} />
                 ))
             }
 
