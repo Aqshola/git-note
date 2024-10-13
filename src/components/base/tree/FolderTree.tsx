@@ -1,9 +1,8 @@
 import clsx from "clsx"
 import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from 'framer-motion'
-import { div } from "framer-motion/client"
 import { folderTreeType } from "@/types/note"
-import PopOver from "@/components/base/popup/PopOver"
+import Popover from "@/components/base/popup/PopOver"
 type FolderTree = {
     folderData: folderTreeType
     callbackRename: (id: string, newName: string) => void
@@ -69,13 +68,11 @@ export default function FolderTree(props: Readonly<FolderTree>) {
                 )}
 
                 <div className="ml-auto">
-                    <PopOver>
-                        <button className="relative inline-block z-30">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                            </svg>
-                        </button>
-                    </PopOver>
+                    <Popover>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                        </svg>
+                    </Popover>
                 </div>
 
 
