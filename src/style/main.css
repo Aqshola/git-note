@@ -8,6 +8,13 @@
     .shadow-3d {
         box-shadow: 2px 2px 0 0 black;
     }
+
+    .border-sketch {
+        border-top-left-radius: 255px 15px;
+        border-top-right-radius: 15px 225px;
+        border-bottom-right-radius: 225px 15px;
+        border-bottom-left-radius: 15px 255px;
+    }
 }
 
 svg {

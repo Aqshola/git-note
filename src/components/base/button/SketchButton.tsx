@@ -5,20 +5,17 @@ import rough from 'roughjs'
 const STYLE_SIZE = {
     lg: "px-7 py-2 text-xl",
     base: "px-7 py-1 text-lg",
-    sm: "px-5 py-1 text-base"
+    sm: "px-5 py-1 text-base",
+    custom: "",
 }
 interface Props {
     children: React.ReactNode
-    size?: keyof typeof STYLE_SIZE
+    size?: keyof typeof STYLE_SIZE,
+    className?: string
 }
 export default function SketchButton({ size = "base", ...props }: Props) {
     const refButton = useRef<HTMLButtonElement>(null)
     const refSvg = useRef<SVGSVGElement>(null)
-
-
-
-
-    // const [strokeWidthState, setStrokeWidthState] = useState(1)
 
 
     useEffect(() => {
@@ -45,15 +42,8 @@ export default function SketchButton({ size = "base", ...props }: Props) {
         }
     }, [])
 
-    function handleHover(method: string) {
 
-
-    }
-
-
-    return <>
-
-        <button className={clsx(`
+    return <button className={clsx(`
             relative font-comic-neue 
             border-none bg-none outline-none  
             min-w-[50px] 
@@ -63,12 +53,12 @@ export default function SketchButton({ size = "base", ...props }: Props) {
         `, `
             active:translate-y-1  
             hover:-translate-y-0.5
-        `, STYLE_SIZE[size])} ref={refButton}>
-            {props.children}
-            <div className="absolute top-0 left-0 right-0 bottom-0">
-                <svg className="block w-fit h-fit active:shadow-none  hover:shadow-3d" ref={refSvg}></svg>
-            </div>
-        </button>
+        `, STYLE_SIZE[size], props.className)} ref={refButton}>
+        {props.children}
+        <div className="absolute top-0 left-0 right-0 bottom-0">
+            <svg className="block w-fit h-fit active:shadow-none  hover:shadow-3d" ref={refSvg}></svg>
+        </div>
+    </button>
 
-    </>
+
 }
