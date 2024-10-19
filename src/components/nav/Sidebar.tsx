@@ -56,17 +56,20 @@ export default function Sidebar() {
     }
 
     async function handleAddSubFolder(id: string) {
-        // const newFolder: baseItem = {
-        //     label: "Untitled",
-        //     type: "FOLDER",
-        //     counter: 1,
-        //     rename: true,
-        //     open: false
-        // }
+        const newFolder: BaseItem = {
+            id: uuidv4(),
+            label: "Untitled Sub Folder",
+            type: "FOLDER",
+            counter: 0,
+            rename: true,
+            open: false,
+            content: "",
+            path: "",
+            parentId: "",
+            childrenIds: []
+        }
 
-        // await createNewSubFolder(id, newFolder)
-        // await handleGetListFolder()
-
+        await createNewSubFolder(id, newFolder)
     }
 
     async function handleGetListFolder() {
@@ -76,6 +79,10 @@ export default function Sidebar() {
 
     async function handleRenameFolder(id: string, name: string) {
         await updateFolderName(id, name)
+        await handleGetListFolder()
+    }
+
+    async function handleDeleteFolder(id: string) {
         await handleGetListFolder()
     }
 
@@ -117,17 +124,13 @@ export default function Sidebar() {
 
         <div className='mt-10'>
             {folderTreeData.map((el) => (
-                <Item key={el.id} dataItem={el} callbackRename={handleRenameFolder} />
+                <Item key={el.id} dataItem={el} callbackRename={handleRenameFolder}
+                    callbackNewSubFolder={handleAddSubFolder}
+                    callbackDelete={handleDeleteFolder} />
             ))}
 
         </div>
-        {/* <div className="mt-10">
-            {
-                folderTreeData.map((el) => (
-                    <FolderTree folderData={el} callbackRename={handleRenameFolder} key={el.id} callbackSubFolder={handleAddSubFolder} />
-                ))
-            }
-        </div> */}
+
     </motion.div>
 
 }

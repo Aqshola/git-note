@@ -12,6 +12,7 @@ type Props = {
 export default function Popover(props: Readonly<Props>) {
     const refParentPopover = useRef<HTMLDivElement>(null)
     const refPopover = useRef<HTMLDivElement>(null);
+    const refButtonPopover = useRef<HTMLButtonElement>(null)
 
 
     const [visible, setVisible] = useState(false)
@@ -50,7 +51,9 @@ export default function Popover(props: Readonly<Props>) {
     }
 
     function handleClickHide(e: MouseEvent) {
-        setVisible(false)
+        if (refButtonPopover.current && !refButtonPopover.current.contains(e.target as Node)) {
+            setVisible(false)
+        }
     }
 
 
@@ -85,7 +88,7 @@ export default function Popover(props: Readonly<Props>) {
 
 
     return <div className="relative" ref={refParentPopover}>
-        <button onClick={showPopover}>
+        <button onClick={showPopover} ref={refButtonPopover}>
             {props.buttonChildren}
         </button>
 
