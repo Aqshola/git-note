@@ -1,5 +1,4 @@
 import { generateRandomId } from "@/common/generator";
-import { checkLayoutPlatform } from "@/common/ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react"
 import ReactDom from "react-dom";
@@ -17,6 +16,7 @@ export default function Popover(props: Readonly<Props>) {
 
     const [visible, setVisible] = useState(false)
     const [translate, setTranslate] = useState({ x: 0, y: 0 })
+
 
     function handlePopoverPosition() {
         if (!refParentPopover.current || !refPopover.current) return

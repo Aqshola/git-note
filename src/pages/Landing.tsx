@@ -7,7 +7,7 @@ import { RoughNotation } from "react-rough-notation";
 
 export default function Landing2() {
     return (
-        <div className="max-w-screen-2xl h-screen py-3 px-9 mx-auto overflow-y-hidden">
+        <div className="max-w-screen-2xl h-[99vh] py-3 px-9 mx-auto overflow-y-hidden">
             <nav className="flex justify-between items-center">
                 <h5 className="font-comic-neue font-bold text-xl">Notebuk</h5>
                 <div className="flex gap-5 font-comic-neue items-center">

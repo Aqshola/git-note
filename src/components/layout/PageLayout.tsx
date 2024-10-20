@@ -7,7 +7,7 @@ type Props = {
 }
 
 export default function PageLayout(props: Readonly<Props>) {
-    return <div className="flex flex-col h-screen">
+    return <div className="flex flex-col min-h-screen  overflow-hidden">
         <Navbar />
         <motion.div className='flex h-full relative'>
             <Sidebar />

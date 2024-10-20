@@ -2,6 +2,7 @@ import GlobalLayout from "@/components/layout/GlobalLayout";
 import Landing from "@/pages/Landing";
 import Note from "@/pages/Note";
 import NoteV2 from "@/pages/NoteV2";
+
 import NotFound from "@/pages/errors/NotFound";
 import { createBrowserRouter } from "react-router-dom";
 

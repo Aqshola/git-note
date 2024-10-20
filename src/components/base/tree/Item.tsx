@@ -3,6 +3,7 @@ import clsx from "clsx"
 import { useEffect, useRef, useState } from "react"
 import Popover from "../popup/Popover"
 import { getListSubFolder, deleteFolder } from "@/service/noteService"
+import { AnimatePresence, motion } from 'framer-motion'
 
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
     isSubFolder?: boolean
 
     callbackUpdateSubFolder?: () => Promise<void>
+    callbackDeleteSubFolder?: () => void
 
 }
 
@@ -24,6 +26,7 @@ export default function Item(props: Props) {
     const [renameMode, setRenameMode] = useState<boolean>(props.dataItem.rename)
     const [openSubFolderMode, setOpenSubFolderMode] = useState<boolean>(props.dataItem.open)
     const [listSubFolder, setListSubFolder] = useState<BaseItem[]>([])
+    const [contentCount, setContentCount] = useState<number>(props.dataItem.childrenIds?.length || 0)
 
 
     useEffect(() => {
@@ -57,10 +60,12 @@ export default function Item(props: Props) {
 
     }
 
-    async function handleNewSubFolder() {
+    async function handleNewSubFolder(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+        e.stopPropagation()
         await props.callbackNewSubFolder(props.dataItem.id)
         await handleListSubFolder()
         setOpenSubFolderMode(true)
+        setContentCount(contentCount + 1)
     }
 
     async function handleListSubFolder() {
@@ -72,9 +77,14 @@ export default function Item(props: Props) {
         e.stopPropagation()
         await deleteFolder(props.dataItem.id)
         await props.callbackDelete(props.dataItem.id)
-        if (props.isSubFolder && props.callbackUpdateSubFolder) {
+        if (props.isSubFolder && props.callbackUpdateSubFolder && props.callbackDeleteSubFolder) {
             await props.callbackUpdateSubFolder()
+            props.callbackDeleteSubFolder()
         }
+    }
+
+    function handleCallbackDeleteSubFolder() {
+        setContentCount(contentCount - 1)
     }
 
     function handleRenameFolder(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
@@ -90,19 +100,30 @@ export default function Item(props: Props) {
     }}>
         <div className="p-2 flex items-center text-sm cursor-pointer" onClick={handleToggleOpenFolder}>
             <div>
-                {openSubFolderMode ? (
-                    <svg className="stroke-purple-primary" width="20" height="18" viewBox="0 0 46 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4.48572 39.2L1.74286 36.4571V4.22857L4.48572 1.48572H17.4937L25.0434 9.03543" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M25.0297 9.02856H38.7646L41.5074 11.7577C41.5074 12.5668 41.5074 13.4926 41.5143 14.5143" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M4.48572 39.2L10.7394 19.184L13.3589 17.2571H41.8914L44.5109 20.8229L39.3406 37.28L36.7211 39.2H4.48572Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                ) : (<svg width="20" height="18" viewBox="0 0 46 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M24.344 8.65711H42.1931L44.936 11.3863C44.9634 17.352 44.9223 31.5051 44.9017 37.4708L42.1588 40.2H3.79999L1.05713 37.4571V3.85711L3.79999 1.11426H16.808L24.344 8.65711Z"
-                        className={clsx(props.dataItem ? "stroke-purple-primary" : 'stroke-black')}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round" />
+                {openSubFolderMode && (<svg className="stroke-purple-primary" width="20" height="18" viewBox="0 0 46 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.48572 39.2L1.74286 36.4571V4.22857L4.48572 1.48572H17.4937L25.0434 9.03543" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M25.0297 9.02856H38.7646L41.5074 11.7577C41.5074 12.5668 41.5074 13.4926 41.5143 14.5143" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M4.48572 39.2L10.7394 19.184L13.3589 17.2571H41.8914L44.5109 20.8229L39.3406 37.28L36.7211 39.2H4.48572Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>)}
+
+                {!openSubFolderMode && contentCount == 0 && (
+                    <svg width="20" height="18" viewBox="0 0 46 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24.344 8.65711H42.1931L44.936 11.3863C44.9634 17.352 44.9223 31.5051 44.9017 37.4708L42.1588 40.2H3.79999L1.05713 37.4571V3.85711L3.79999 1.11426H16.808L24.344 8.65711Z"
+                            className={clsx(props.dataItem ? "stroke-purple-primary" : 'stroke-black')}
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round" />
+                    </svg>
+                )}
+
+                {!openSubFolderMode && contentCount > 0 && (
+                    <svg className="stroke-purple-primary" width="22" height="22" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M25.344 24H43.1931L45.936 26.7292C45.9634 32.6949 45.9223 36.5623 45.9017 42.528L43.1589 45.2572H4.8L2.05714 42.5143V19.2L4.8 16.4572H17.808L25.344 24Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M6.85715 13.7143V2.74286H37.0286V6.17143" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M13.0286 13.7143V8.91431H43.2V21.2572" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+
+                )}
 
 
 
@@ -155,17 +176,29 @@ export default function Item(props: Props) {
         </div>
 
         {/* LIST SUB FOLDER */}
-        <div>
-            {openSubFolderMode && listSubFolder.map((el) => (
-                <Item key={el.id} dataItem={el} callbackNewSubFolder={props.callbackNewSubFolder}
-                    callbackRename={props.callbackRename}
-                    isSubFolder={true}
-                    callbackUpdateSubFolder={handleListSubFolder}
-                    callbackDelete={props.callbackDelete}
-                />
-            ))}
+        <AnimatePresence>
+            {openSubFolderMode && (
+                <motion.div className="overflow-hidden" initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }}>
+                    <AnimatePresence mode="popLayout">
+                        {listSubFolder.map((el) => (
+                            <motion.div key={el.id} initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }} className="overflow-hidden">
+                                <Item dataItem={el} callbackNewSubFolder={props.callbackNewSubFolder}
+                                    callbackRename={props.callbackRename}
+                                    isSubFolder={true}
+                                    callbackUpdateSubFolder={handleListSubFolder}
+                                    callbackDelete={props.callbackDelete}
+                                    callbackDeleteSubFolder={handleCallbackDeleteSubFolder}
+                                />
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
 
-        </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
 
     </div>
 }
