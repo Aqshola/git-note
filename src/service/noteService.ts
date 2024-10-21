@@ -1,25 +1,61 @@
 
 import { useRxDb } from "@/libs/rxDb";
 import { BaseItem } from "@/types/rxSchema";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
-export async function createNewFolder(folder: BaseItem) {
+type createNewFolderParam = {
+    label: string,
+    open: boolean,
+    rename: boolean,
+
+}
+export async function createNewFolder(folderData: createNewFolderParam) {
+    const newFolder: BaseItem = {
+        id: uuidv4(),
+        label: folderData.label,
+        counter: 1,
+        open: folderData.open,
+        rename: folderData.rename,
+        childrenIds: [],
+        content: "",
+        createdAt: new Date().toISOString(),
+        parentId: "",
+        path: "",
+        type: "FOLDER"
+    }
     const db = await useRxDb()
-    const result = await db.items.insert(folder)
+    const result = await db.items.insert(newFolder)
     return result
 }
 
-export async function createNewSubFolder(id: string, folder: BaseItem) {
+
+type createNewSubFolderParam = {
+    label: string,
+    open: boolean,
+    rename: boolean,
+
+}
+
+export async function createNewSubFolder(id: string, folderData: createNewSubFolderParam) {
     const db = await useRxDb()
 
     const itemData = await db.items.findOne({ selector: { id } }).exec()
     if (!itemData) return
 
     const newFolderData: BaseItem = {
-        ...folder,
+        id: uuidv4(),
+        label: folderData.label,
+        open: folderData.open,
+        rename: folderData.rename,
+        type: "FOLDER",
+        path: "",
+        content: "",
+        childrenIds: [],
         counter: itemData.counter + 1,
         parentId: itemData.id,
+        createdAt: new Date().toISOString(),
     }
 
     const resultSubFolder = await db.items.insert(newFolderData)
@@ -40,14 +76,21 @@ export async function getListFolder() {
         selector: {
             type: { "$eq": "FOLDER" },
             counter: { "$eq": 1 }
-        }
+        },
+        sort: [
+            { createdAt: 'desc' }
+        ]
     }).exec()
     return listParentFolder as BaseItem[]
 }
 
 export async function getListSubFolder(id: string) {
     const db = await useRxDb()
-    const listSubFolder = await db.items.find({ selector: { parentId: id } }).exec()
+    const listSubFolder = await db.items.find({
+        selector: { parentId: id }, sort: [
+            { createdAt: 'desc' }
+        ]
+    }).exec()
     return listSubFolder as BaseItem[]
 
 }
@@ -110,9 +153,6 @@ export async function deleteFolder(id: string) {
 }
 
 
-async function recursiveGetSubFolderId(ids: string, childIds: []) {
-
-}
 
 export function testing() {
 

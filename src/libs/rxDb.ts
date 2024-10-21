@@ -10,7 +10,7 @@ let db: RxDatabase<{
 }>;
 
 export async function initRxDb() {
-    addRxPlugin(RxDBDevModePlugin);
+    addRxPlugin(RxDBDevModePlugin); //should hide in prod, also have side effect add iframe in document body
     addRxPlugin(RxDBUpdatePlugin)
     const init = await createRxDatabase({
         name: 'notebuk',

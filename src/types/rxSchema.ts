@@ -10,10 +10,12 @@ export interface BaseItem {
     path: string
     counter: number
     rename: boolean,
-    open: false
+    open: boolean
 
     parentId: string | null,
     childrenIds: Array<string> | null,
+
+    createdAt: string //from rxdb
 }
 
 
@@ -56,7 +58,13 @@ export const itemSchema: RxJsonSchema<BaseItem> = {
         },
         childrenIds: {
             type: "array"
+        },
+        createdAt: {
+            "type": "string",
+            "format": "date-time",
+            default: new Date().toISOString()
         }
+
     },
     required: ["type", "label", "id", "content", "path", "counter"]
 

@@ -1,11 +1,9 @@
 import { createNewFolder, createNewSubFolder, getListFolder, testing, updateFolderName } from '@/service/noteService'
 import { useUiStore } from '@/stores/uiStore'
-import { itemFromDB, } from '@/types/note'
 import { BaseItem } from '@/types/rxSchema'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid';
 import Item from '../base/tree/Item'
 
 export default function Sidebar() {
@@ -38,38 +36,20 @@ export default function Sidebar() {
 
 
     async function handleAddFolder() {
-        const newFolder: BaseItem = {
-            id: uuidv4(),
+        await createNewFolder({
             label: "Untitled",
-            type: "FOLDER",
-            counter: 1,
-            rename: true,
             open: false,
-            content: "",
-            path: "",
-            parentId: "",
-            childrenIds: []
-        }
-
-        await createNewFolder(newFolder)
+            rename: true
+        })
         await handleGetListFolder()
     }
 
     async function handleAddSubFolder(id: string) {
-        const newFolder: BaseItem = {
-            id: uuidv4(),
+        await createNewSubFolder(id, {
             label: "Untitled Sub Folder",
-            type: "FOLDER",
-            counter: 0,
             rename: true,
             open: false,
-            content: "",
-            path: "",
-            parentId: "",
-            childrenIds: []
-        }
-
-        await createNewSubFolder(id, newFolder)
+        })
     }
 
     async function handleGetListFolder() {
