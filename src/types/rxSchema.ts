@@ -62,7 +62,6 @@ export const itemSchema: RxJsonSchema<BaseItem> = {
         createdAt: {
             "type": "string",
             "format": "date-time",
-            default: new Date().toISOString()
         }
 
     },

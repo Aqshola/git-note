@@ -69,26 +69,25 @@ export async function createNewSubFolder(id: string, folderData: createNewSubFol
     return resultSubFolder
 }
 
-export async function getListFolder() {
+export async function getListItem() {
 
     const db = await useRxDb()
     const listParentFolder = await db.items.find({
         selector: {
-            type: { "$eq": "FOLDER" },
             counter: { "$eq": 1 }
         },
         sort: [
-            { createdAt: 'desc' }
+            { type: 'desc' }, { createdAt: 'asc' },
         ]
     }).exec()
     return listParentFolder as BaseItem[]
 }
 
-export async function getListSubFolder(id: string) {
+export async function getListSubItem(id: string) {
     const db = await useRxDb()
     const listSubFolder = await db.items.find({
         selector: { parentId: id }, sort: [
-            { createdAt: 'desc' }
+            { type: 'asc' }, { createdAt: 'desc' },
         ]
     }).exec()
     return listSubFolder as BaseItem[]
@@ -154,6 +153,25 @@ export async function deleteFolder(id: string) {
 
 
 
-export function testing() {
+export async function createNewFile(label: string) {
+    const newFile: BaseItem = {
+        id: uuidv4(),
+        label: label,
+        childrenIds: [],
+        content: "",
+        counter: 1,
+        open: false,
+        rename: false,
+        createdAt: new Date().toISOString(),
+        parentId: '',
+        path: "",
+        type: "FILE"
+    }
+
+    const db = await useRxDb()
+    const result = await db.items.insert(newFile)
+    return result
+
+
 
 }

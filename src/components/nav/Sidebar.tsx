@@ -1,10 +1,11 @@
-import { createNewFolder, createNewSubFolder, getListFolder, testing, updateFolderName } from '@/service/noteService'
+import { createNewFile, createNewFolder, createNewSubFolder, getListItem, updateFolderName } from '@/service/noteService'
 import { useUiStore } from '@/stores/uiStore'
 import { BaseItem } from '@/types/rxSchema'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import Item from '../base/tree/Item'
+import { useActivityStore } from '@/stores/activityStore'
 
 export default function Sidebar() {
     const navAnimateVariant = {
@@ -23,16 +24,12 @@ export default function Sidebar() {
     }
 
     const uiStore = useUiStore((state) => state)
+    const activityStore = useActivityStore(state => state)
     const [folderTreeData, setFolderTreeData] = useState<BaseItem[]>([])
 
     useEffect(() => {
         handleGetListFolder()
     }, [])
-
-    useEffect(() => {
-        testing()
-    }, [])
-
 
 
     async function handleAddFolder() {
@@ -44,6 +41,13 @@ export default function Sidebar() {
         await handleGetListFolder()
     }
 
+    async function handleAddFile() {
+        const data = await createNewFile("Untitled")
+        activityStore.setActiveFile(data.id)
+        await handleGetListFolder()
+        uiStore.hideSidebar()
+    }
+
     async function handleAddSubFolder(id: string) {
         await createNewSubFolder(id, {
             label: "Untitled Sub Folder",
@@ -53,7 +57,7 @@ export default function Sidebar() {
     }
 
     async function handleGetListFolder() {
-        const data = await getListFolder()
+        const data = await getListItem()
         setFolderTreeData(data)
     }
 
@@ -66,11 +70,6 @@ export default function Sidebar() {
         await handleGetListFolder()
     }
 
-
-
-
-
-
     return <motion.div
         transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
         variants={navAnimateVariant}
@@ -82,7 +81,7 @@ export default function Sidebar() {
 
         }>
         <div >
-            <button className='flex px-1 py-2 bg-purple-primary text-white rounded text-sm gap-2 w-full justify-center font-comic-neue items-center'>
+            <button onClick={handleAddFile} className='flex px-1 py-2 bg-purple-primary text-white rounded text-sm gap-2 w-full justify-center font-comic-neue items-center'>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7.00696 4.53447C6.71496 4.69559 6.23291 3.85183 6.08362 4.14974C5.74756 4.82253 6.53212 8.41527 6.54527 8.61125C6.72612 11.3195 6.52949 14.054 6.69917 16.7655C6.70837 16.9076 6.58145 19.6493 6.69917 19.6881C7.32854 19.8979 9.60537 19.0094 10.238 18.9193C11.4705 18.7431 16.3174 18.8792 17.1611 18.4577C17.7109 18.1828 17.3144 10.8835 17.3144 10.1502C17.3144 9.2071 18.1009 5.41441 17.6222 4.45752C17.2782 3.76961 16.078 4.55288 15.3145 4.45752C12.7555 4.1379 8.74448 3.57429 7.00696 4.53447Z" stroke="white" strokeWidth="1.31531" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M8.85284 7.3808C10.4957 7.3808 12.1332 7.5347 13.776 7.5347" stroke="white" strokeWidth="1.31531" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
