@@ -7,7 +7,7 @@ export interface BaseItem {
     label: string
 
     content: string
-    path: string
+    path: Array<string>
     counter: number
     rename: boolean,
     open: boolean
@@ -40,7 +40,7 @@ export const itemSchema: RxJsonSchema<BaseItem> = {
             type: "string"
         },
         path: {
-            type: "string"
+            type: "array"
         },
         counter: {
             type: "number"

@@ -1,4 +1,4 @@
-import { createNewFile, createNewFolder, createNewSubFolder, getListItem, updateFolderName } from '@/service/noteService'
+import { createNewFile, createNewFolder, createNewSubFile, createNewSubFolder, getListItem, updateFolderName } from '@/service/noteService'
 import { useUiStore } from '@/stores/uiStore'
 import { BaseItem } from '@/types/rxSchema'
 import clsx from 'clsx'
@@ -56,6 +56,14 @@ export default function Sidebar() {
         })
     }
 
+    async function handleAddSubFile(id: string) {
+        await createNewSubFile(id, {
+            label: "Untitled Sub File",
+            rename: false,
+            open: false,
+        })
+    }
+
     async function handleGetListFolder() {
         const data = await getListItem()
         setFolderTreeData(data)
@@ -63,7 +71,6 @@ export default function Sidebar() {
 
     async function handleRenameFolder(id: string, name: string) {
         await updateFolderName(id, name)
-        await handleGetListFolder()
     }
 
     async function handleDeleteFolder(id: string) {
@@ -109,6 +116,7 @@ export default function Sidebar() {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }} >
                         <Item dataItem={el} callbackRename={handleRenameFolder}
+                            callbackNewSubFile={handleAddSubFile}
                             callbackNewSubFolder={handleAddSubFolder}
                             callbackDelete={handleDeleteFolder} />
                     </motion.div>

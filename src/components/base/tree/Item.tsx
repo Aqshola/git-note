@@ -12,6 +12,8 @@ interface Props {
 
     callbackRename: (id: string, newName: string) => Promise<void>
     callbackNewSubFolder: (id: string) => Promise<void>
+
+    callbackNewSubFile: (id: string) => Promise<void>
     callbackDelete: (id: string) => Promise<void>
 
     isSubFolder?: boolean
@@ -21,7 +23,7 @@ interface Props {
 
 }
 
-export default function Item(props: Props) {
+export default function Item(props: Readonly<Props>) {
 
     const activityStore = useActivityStore(state => state)
 
@@ -30,6 +32,7 @@ export default function Item(props: Props) {
     const [openSubFolderMode, setOpenSubFolderMode] = useState<boolean>(props.dataItem.open)
     const [listSubFolder, setListSubFolder] = useState<BaseItem[]>([])
     const [contentCount, setContentCount] = useState<number>(props.dataItem.childrenIds?.length ?? 0)
+    const [itemName, setItemName] = useState<string>(props.dataItem.label)
 
 
 
@@ -42,18 +45,27 @@ export default function Item(props: Props) {
         }
     }, [renameMode])
 
+    useEffect(() => {
+        if (activityStore.updateFileId != '' && activityStore.updateFileId == props.dataItem.id) {
+            setItemName(activityStore.valueUpdateFileLabel)
+            activityStore.setupdateFileId('')
+        }
+
+    }, [activityStore.updateFileId])
+
     async function handleRename(e: React.FocusEvent<HTMLInputElement, Element>) {
         const value = e.target.value
+        setItemName(value)
         await props.callbackRename(props.dataItem.id, value)
         setRenameMode(false)
-        if (props.isSubFolder && props.callbackUpdateSubFolder) {
-            await props.callbackUpdateSubFolder()
-        }
     }
 
-    async function handleToggleOpenFolder(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    async function handleToggleOpenItem(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         e.stopPropagation()
-        if (props.dataItem.type == 'FILE') return
+        if (props.dataItem.type == 'FILE') {
+            activityStore.setActiveFile(props.dataItem.id)
+            return
+        }
         const newValue = !openSubFolderMode
 
         if (newValue) {
@@ -71,6 +83,14 @@ export default function Item(props: Props) {
     async function handleNewSubFolder(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
         e.stopPropagation()
         await props.callbackNewSubFolder(props.dataItem.id)
+        await handleListSubFolder()
+        setOpenSubFolderMode(true)
+        setContentCount(contentCount + 1)
+    }
+
+    async function handleNewSubFile(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+        e.stopPropagation()
+        await props.callbackNewSubFile(props.dataItem.id)
         await handleListSubFolder()
         setOpenSubFolderMode(true)
         setContentCount(contentCount + 1)
@@ -106,7 +126,7 @@ export default function Item(props: Props) {
         marginLeft: `${(props.dataItem.counter - 1) * 12}px`
     }}>
         <div className={clsx("p-2 flex items-center text-xs cursor-pointer", activityStore.activeFileId == props.dataItem.id && ("border-purple-primary border rounded text-purple-primary"))}
-            onClick={handleToggleOpenFolder}>
+            onClick={handleToggleOpenItem}>
             <div>
                 {openSubFolderMode && (<svg className="stroke-purple-primary" width="20" height="18" viewBox="0 0 46 41" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4.48572 39.2L1.74286 36.4571V4.22857L4.48572 1.48572H17.4937L25.0434 9.03543" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -134,7 +154,7 @@ export default function Item(props: Props) {
                 )}
 
                 {props.dataItem.type == "FILE" && (
-                    <svg width="18" height="24" viewBox="0 0 26 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="16" height="22" viewBox="0 0 26 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M11.5115 0.267665C11.6987 0.243237 11.9114 0.345305 11.9273 0.57387C16.6796 4.61332 21.1291 8.99639 25.2396 13.6878C25.4327 13.9084 25.289 14.2013 25.0839 14.2791C25.0617 14.3194 25.0319 14.3549 24.9961 14.3837C24.9601 14.4125 24.9188 14.4341 24.8745 14.447L24.364 14.6062C24.4337 14.689 24.4572 14.8091 24.4357 14.9201C24.4375 14.9351 24.4385 14.9507 24.4385 14.9669L25.1975 31.1455C25.2053 31.3954 24.9876 31.5065 24.7925 31.4787C24.758 31.4903 24.7197 31.4968 24.6775 31.4968C16.7998 31.8622 8.90842 31.82 1.03506 31.3703C0.879529 31.3605 0.777776 31.2735 0.729806 31.1638C0.692309 31.1117 0.669434 31.0447 0.669434 30.9627L1.70962 1.19181C1.70962 1.09861 1.74662 1.00923 1.81252 0.943333C1.85879 0.89707 1.91663 0.865039 1.97924 0.850057C2.03232 0.809356 2.10178 0.784266 2.18763 0.784266H11.1166C10.9257 0.532716 11.2234 0.194429 11.5115 0.267665ZM22.8991 14.5519C22.9046 14.5019 22.9207 14.4533 22.9471 14.4094C22.9944 14.3306 23.0707 14.2734 23.1596 14.2502L24.4546 13.8463C20.5758 9.44768 16.4041 5.3166 11.9682 1.48123L12.5347 13.9304C15.9644 14.4483 19.4332 14.6562 22.8991 14.5519ZM11.8392 14.0923C11.7428 14.2792 11.7867 14.5267 12.0406 14.5594C15.9113 15.1706 19.8333 15.3926 23.7477 15.2224L24.4787 30.8031C16.7827 31.1534 9.07389 31.1147 1.38187 30.687L2.40211 1.48707H11.2657L11.8392 14.0923Z" />
                         <path d="M11.5115 0.267665C11.6987 0.243237 11.9114 0.345305 11.9273 0.57387C16.6796 4.61332 21.1291 8.99639 25.2396 13.6878C25.4327 13.9084 25.289 14.2013 25.0839 14.2791C25.0617 14.3194 25.0319 14.3549 24.9961 14.3837C24.9601 14.4125 24.9188 14.4341 24.8745 14.447L24.364 14.6062C24.4337 14.689 24.4572 14.8091 24.4357 14.9201C24.4375 14.9351 24.4385 14.9507 24.4385 14.9669L25.1975 31.1455C25.2053 31.3954 24.9876 31.5065 24.7925 31.4787C24.758 31.4903 24.7197 31.4968 24.6775 31.4968C16.7998 31.8622 8.90842 31.82 1.03506 31.3703C0.879529 31.3605 0.777776 31.2735 0.729806 31.1638C0.692309 31.1117 0.669434 31.0447 0.669434 30.9627L1.70962 1.19181C1.70962 1.09861 1.74662 1.00923 1.81252 0.943333C1.85879 0.89707 1.91663 0.865039 1.97924 0.850057C2.03232 0.809356 2.10178 0.784266 2.18763 0.784266H11.1166C10.9257 0.532716 11.2234 0.194429 11.5115 0.267665ZM22.8991 14.5519C22.9046 14.5019 22.9207 14.4533 22.9471 14.4094C22.9944 14.3306 23.0707 14.2734 23.1596 14.2502L24.4546 13.8463C20.5758 9.44768 16.4041 5.3166 11.9682 1.48123L12.5347 13.9304C15.9644 14.4483 19.4332 14.6562 22.8991 14.5519ZM11.8392 14.0923C11.7428 14.2792 11.7867 14.5267 12.0406 14.5594C15.9113 15.1706 19.8333 15.3926 23.7477 15.2224L24.4787 30.8031C16.7827 31.1534 9.07389 31.1147 1.38187 30.687L2.40211 1.48707H11.2657L11.8392 14.0923Z" className="stroke-purple-primary" />
                     </svg>
@@ -146,11 +166,11 @@ export default function Item(props: Props) {
             {renameMode ? (
                 <input ref={refInputLabel} className="font-comic-neue  border-sketch ml-4 box-border p-1 border-purple-primary border rounded w-full"
                     placeholder="Folder Name"
-                    defaultValue={props.dataItem.label} onBlur={handleRename} />
+                    defaultValue={itemName} onBlur={handleRename} />
             ) : (
 
                 <span className="font-comic-neue ml-4 p-1 w-full">
-                    {props.dataItem.label}
+                    {itemName}
                 </span>
             )}
 
@@ -178,7 +198,7 @@ export default function Item(props: Props) {
                             <button className="text-xs text-left p-1 hover:bg-gray-200 rounded transition-colors" onClick={handleNewSubFolder}>
                                 Make Folder
                             </button>
-                            <button className="text-xs text-left p-1 hover:bg-gray-200 rounded transition-colors">
+                            <button className="text-xs text-left p-1 hover:bg-gray-200 rounded transition-colors" onClick={handleNewSubFile}>
                                 Make File
                             </button>
                         </>
@@ -206,7 +226,7 @@ export default function Item(props: Props) {
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
                                 transition={{ duration: 0.3 }} className="overflow-hidden">
-                                <Item dataItem={el} callbackNewSubFolder={props.callbackNewSubFolder}
+                                <Item dataItem={el} callbackNewSubFolder={props.callbackNewSubFolder} callbackNewSubFile={props.callbackNewSubFile}
                                     callbackRename={props.callbackRename}
                                     isSubFolder={true}
                                     callbackUpdateSubFolder={handleListSubFolder}

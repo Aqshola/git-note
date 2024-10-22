@@ -22,14 +22,35 @@ export async function createNewFolder(folderData: createNewFolderParam) {
         content: "",
         createdAt: new Date().toISOString(),
         parentId: "",
-        path: "",
+        path: [],
         type: "FOLDER"
     }
     const db = await useRxDb()
     const result = await db.items.insert(newFolder)
     return result
 }
+export async function createNewFile(label: string) {
+    const newFile: BaseItem = {
+        id: uuidv4(),
+        label: label,
+        childrenIds: [],
+        content: "",
+        counter: 1,
+        open: false,
+        rename: false,
+        createdAt: new Date().toISOString(),
+        parentId: '',
+        path: [],
+        type: "FILE"
+    }
 
+    const db = await useRxDb()
+    const result = await db.items.insert(newFile)
+    return result
+
+
+
+}
 
 type createNewSubFolderParam = {
     label: string,
@@ -44,13 +65,47 @@ export async function createNewSubFolder(id: string, folderData: createNewSubFol
     const itemData = await db.items.findOne({ selector: { id } }).exec()
     if (!itemData) return
 
+    const path = [...itemData.path, itemData.id]
     const newFolderData: BaseItem = {
         id: uuidv4(),
         label: folderData.label,
         open: folderData.open,
         rename: folderData.rename,
         type: "FOLDER",
-        path: "",
+        path: path,
+        content: "",
+        childrenIds: [],
+        counter: itemData.counter + 1,
+        parentId: itemData.id,
+        createdAt: new Date().toISOString(),
+    }
+
+    const resultSubFolder = await db.items.insert(newFolderData)
+
+    const itemDataChildren = [...itemData.childrenIds]
+    itemDataChildren.push(resultSubFolder.id)
+
+    await itemData.patch({
+        childrenIds: itemDataChildren
+    })
+    return resultSubFolder
+}
+
+
+export async function createNewSubFile(id: string, folderData: createNewSubFolderParam) {
+    const db = await useRxDb()
+
+    const itemData = await db.items.findOne({ selector: { id } }).exec()
+    if (!itemData) return
+
+    const path = [...itemData.path, itemData.id]
+    const newFolderData: BaseItem = {
+        id: uuidv4(),
+        label: folderData.label,
+        open: false,
+        rename: false,
+        type: "FILE",
+        path: path,
         content: "",
         childrenIds: [],
         counter: itemData.counter + 1,
@@ -77,7 +132,7 @@ export async function getListItem() {
             counter: { "$eq": 1 }
         },
         sort: [
-            { type: 'desc' }, { createdAt: 'asc' },
+            { type: 'desc' }, { createdAt: 'desc' },
         ]
     }).exec()
     return listParentFolder as BaseItem[]
@@ -87,7 +142,7 @@ export async function getListSubItem(id: string) {
     const db = await useRxDb()
     const listSubFolder = await db.items.find({
         selector: { parentId: id }, sort: [
-            { type: 'asc' }, { createdAt: 'desc' },
+            { type: 'desc' }, { createdAt: 'desc' },
         ]
     }).exec()
     return listSubFolder as BaseItem[]
@@ -107,6 +162,18 @@ export async function updateFolderName(id: string, newName: string) {
     return updateResult
 
 
+}
+
+export async function updateFileName(id: string, newName: string) {
+    const db = await useRxDb()
+    const itemData = await db.items.findOne({ selector: { id } }).exec()
+    if (!itemData) return
+
+    const updateResult = await itemData.patch({
+        label: newName,
+    })
+
+    return updateResult
 }
 
 export async function deleteFolder(id: string) {
@@ -151,27 +218,29 @@ export async function deleteFolder(id: string) {
 
 }
 
-
-
-export async function createNewFile(label: string) {
-    const newFile: BaseItem = {
-        id: uuidv4(),
-        label: label,
-        childrenIds: [],
-        content: "",
-        counter: 1,
-        open: false,
-        rename: false,
-        createdAt: new Date().toISOString(),
-        parentId: '',
-        path: "",
-        type: "FILE"
-    }
-
+export async function getDetailFile(id: string) {
     const db = await useRxDb()
-    const result = await db.items.insert(newFile)
-    return result
+    const itemData = await db.items.findOne({ selector: { id } }).exec()
+    if (!itemData) return
+    return itemData as BaseItem
 
+}
 
+export async function getItemPath(ids: Array<string>) {
+    const db = await useRxDb()
+    const listItem = await db.items.find({
+        selector: {
+            id: {
+                "$in": ids
+            }
+        },
+        sort: [
+            { type: 'desc' }, { createdAt: 'asc' },
+        ]
+    }).exec()
 
+    return listItem.map((item) => ({
+        id: item.id,
+        label: item.label
+    }))
 }

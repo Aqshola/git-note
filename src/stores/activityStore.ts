@@ -4,7 +4,14 @@ import { createJSONStorage, persist } from "zustand/middleware"
 
 interface ActivityStore {
     activeFileId: string,
+
+    updateFileId: string
+
+    valueUpdateFileLabel: string
     setActiveFile: (id: string) => void
+    setupdateFileId: (value: string) => void
+
+    setValueUpdateFileLabel: (value: string) => void
 }
 
 
@@ -14,7 +21,18 @@ export const useActivityStore = create<ActivityStore>()(
     persist(
         (set) => ({
             activeFileId: "",
-            setActiveFile(id: string) { set(() => ({ activeFileId: id })) }
+            updateFileId: "",
+            valueUpdateFileLabel: "",
+            setActiveFile(id) {
+                set(() => ({ activeFileId: id }))
+            },
+            setupdateFileId(value) {
+                set(() => ({ updateFileId: value }))
+            },
+            setValueUpdateFileLabel(value) {
+                set(() => ({ valueUpdateFileLabel: value }))
+            }
+
         }),
         {
             name: STORE_NAME,
