@@ -81,6 +81,8 @@ export default function NoteV2() {
         if (dataDetail.content != "") {
             const parse = JSON.parse(dataDetail.content) as JSONContent
             editorTipTap?.commands.setContent(parse)
+        } else {
+            editorTipTap?.commands.setContent("")
         }
         refInputTitle.current?.select()
     }
