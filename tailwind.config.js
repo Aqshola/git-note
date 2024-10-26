@@ -7,7 +7,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'comic-neue': ["Comic Neue", 'cursive']
+        'comic-neue': ["Comic Neue", 'cursive'],
+        'jetbrains-mono': ["JetBrains Mono", 'serif']
       },
       colors: {
         'purple-primary': '#4D46DD',
@@ -15,7 +16,8 @@ export default {
         'soft-white': "#FCFCFC",
         'soft-gray': "#F6F6F6",
         'line-gray': "#E0E0E0",
-        'write-gray': "#737373"
+        'write-gray': "#737373",
+        'brown-code': "#2E2B29",
       }
     },
   },

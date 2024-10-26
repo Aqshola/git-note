@@ -1,6 +1,5 @@
 .tiptap-height {
-    min-height: 50vh;
-
+    min-height: 50vh !important;
 }
 
 .tiptap:focus {
@@ -28,6 +27,6 @@
     outline: 2px solid lightblue;
 }
 
-.tiptap img + p {
+.tiptap img+p {
     clear: both;
-  }
+}
