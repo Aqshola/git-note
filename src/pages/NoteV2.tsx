@@ -1,13 +1,13 @@
 import PageLayout from '@/components/layout/PageLayout'
-import { getDetailFile, getItemPath, updateFileName } from '@/service/noteService'
+import { getDetailFile, getItemPath, saveContent, updateFileName } from '@/service/noteService'
 import { useActivityStore } from '@/stores/activityStore'
 import { BaseItem } from '@/types/rxSchema'
 import CodeBlock from '@tiptap/extension-code-block'
-import { EditorContent, useEditor } from '@tiptap/react'
+import { EditorContent, JSONContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-
+import debounce from 'lodash.debounce'
 export default function NoteV2() {
 
     const activityStore = useActivityStore(state => state)
@@ -15,7 +15,7 @@ export default function NoteV2() {
     const [noteData, setNoteData] = useState<BaseItem>()
     const [listPath, setListPath] = useState<Array<{ id: string, label: string }>>([])
     const [noteLabel, setNoteLabel] = useState<string>("")
-    const [noteContent, setNoteContent] = useState<string>("")
+    const [noteContent, setNoteContent] = useState<string>()
 
 
     const tiptapExtension = [
@@ -27,13 +27,18 @@ export default function NoteV2() {
         })
     ]
     const editorTipTap = useEditor({
-        content: noteContent,
         extensions: tiptapExtension,
         editorProps: {
             attributes: {
                 class: "min-h-screen border-none outline-none text-sm  font-comic-neue ",
             },
         },
+        onUpdate: debounce(async ({ editor }) => {
+            const content = editor.getJSON()
+            if (!noteData) return
+            await saveContent(noteData?.id, content)
+
+        }, 300)
     })
 
 
@@ -42,6 +47,8 @@ export default function NoteV2() {
             handleGetDetailFile()
         }
     }, [activityStore.activeFileId])
+
+
 
 
     function handleChangeLabel(e: React.ChangeEvent<HTMLInputElement>) {
@@ -60,12 +67,21 @@ export default function NoteV2() {
     async function handleGetDetailFile() {
         const dataDetail = await getDetailFile(activityStore.activeFileId)
 
-        if (!dataDetail) return
+        if (!dataDetail) {
+            activityStore.setActiveFile("");
+            return
+        }
         const path = await getItemPath(dataDetail?.path || [])
-        setNoteContent(dataDetail.content ?? '')
-        setNoteLabel(dataDetail.label ?? '')
+        setNoteContent(dataDetail.content)
+        setNoteLabel(dataDetail.label)
         setNoteData(dataDetail)
         setListPath(path)
+
+
+        if (dataDetail.content != "") {
+            const parse = JSON.parse(dataDetail.content) as JSONContent
+            editorTipTap?.commands.setContent(parse)
+        }
         refInputTitle.current?.select()
     }
 

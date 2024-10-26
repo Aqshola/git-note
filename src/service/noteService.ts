@@ -2,6 +2,7 @@
 import { useRxDb } from "@/libs/rxDb";
 import { BaseItem } from "@/types/rxSchema";
 import { v4 as uuidv4 } from 'uuid';
+import { JSONContent } from "@tiptap/react";
 
 
 
@@ -23,7 +24,9 @@ export async function createNewFolder(folderData: createNewFolderParam) {
         createdAt: new Date().toISOString(),
         parentId: "",
         path: [],
-        type: "FOLDER"
+        type: "FOLDER",
+        updatedAt: new Date().toISOString(),
+
     }
     const db = await useRxDb()
     const result = await db.items.insert(newFolder)
@@ -41,7 +44,8 @@ export async function createNewFile(label: string) {
         createdAt: new Date().toISOString(),
         parentId: '',
         path: [],
-        type: "FILE"
+        type: "FILE",
+        updatedAt: new Date().toISOString(),
     }
 
     const db = await useRxDb()
@@ -78,6 +82,7 @@ export async function createNewSubFolder(id: string, folderData: createNewSubFol
         counter: itemData.counter + 1,
         parentId: itemData.id,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
     }
 
     const resultSubFolder = await db.items.insert(newFolderData)
@@ -111,6 +116,7 @@ export async function createNewSubFile(id: string, folderData: createNewSubFolde
         counter: itemData.counter + 1,
         parentId: itemData.id,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
     }
 
     const resultSubFolder = await db.items.insert(newFolderData)
@@ -243,4 +249,16 @@ export async function getItemPath(ids: Array<string>) {
         id: item.id,
         label: item.label
     }))
+}
+
+export async function saveContent(id: string, content: JSONContent) {
+
+    const db = await useRxDb()
+    const itemData = await db.items.findOne({ selector: { id } }).exec()
+    if (!itemData) return
+
+    await itemData.incrementalPatch({
+        content: JSON.stringify(content),
+        updatedAt: new Date().toISOString(),
+    })
 }

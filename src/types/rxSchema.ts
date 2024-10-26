@@ -1,4 +1,5 @@
 import { RxJsonSchema } from "rxdb";
+import { JSONContent } from "@tiptap/react";
 
 
 export interface BaseItem {
@@ -6,7 +7,7 @@ export interface BaseItem {
     type: 'FOLDER' | 'FILE',
     label: string
 
-    content: string
+    content: string // parsed as JSONContent
     path: Array<string>
     counter: number
     rename: boolean,
@@ -15,7 +16,8 @@ export interface BaseItem {
     parentId: string | null,
     childrenIds: Array<string> | null,
 
-    createdAt: string //from rxdb
+    createdAt: string //from rxdb,
+    updatedAt: string
 }
 
 
@@ -60,6 +62,10 @@ export const itemSchema: RxJsonSchema<BaseItem> = {
             type: "array"
         },
         createdAt: {
+            "type": "string",
+            "format": "date-time",
+        },
+        updatedAt: {
             "type": "string",
             "format": "date-time",
         }
