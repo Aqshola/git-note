@@ -8,6 +8,10 @@ import StarterKit from '@tiptap/starter-kit'
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import debounce from 'lodash.debounce'
+import Image from "@tiptap/extension-image";
+import { getAssetsByListId, saveAsset } from '@/service/assetService'
+
+
 export default function NoteV2() {
 
     const activityStore = useActivityStore(state => state)
@@ -18,13 +22,28 @@ export default function NoteV2() {
     const [noteContent, setNoteContent] = useState<string>()
 
 
+    const CustomImageExtension = Image.extend({
+        addAttributes() {
+            return {
+                ...this.parent?.(),
+                class: {
+                    default: null,
+                },
+                "data-id-file": {
+                    default: null
+                }
+            }
+        },
+    })
     const tiptapExtension = [
         StarterKit,
         CodeBlock.configure({
             HTMLAttributes: {
                 class: "bg-soft-gray rounded text-black text-sm jetbrains-mono p-3 my-1"
             }
-        })
+        }),
+        CustomImageExtension
+
     ]
     const editorTipTap = useEditor({
         extensions: tiptapExtension,
@@ -32,7 +51,39 @@ export default function NoteV2() {
             attributes: {
                 class: "min-h-screen border-none outline-none text-sm  font-comic-neue ",
             },
+            handlePaste(editor, event, __) {
+                (async () => {
+                    const items = event.clipboardData?.items;
+                    if (!items || items.length == 0) return false;
+                    event.preventDefault();
+
+                    const blob = items[0].getAsFile();
+                    if (!blob) return false;
+
+                    const newAsset = await saveAsset(blob)
+                    await newAsset.attach
+
+                    const objectUrl = URL.createObjectURL(blob)
+                    if (!editorTipTap) return
+                    editorTipTap.chain()
+                        .focus()
+                        .insertContent([
+                            {
+                                type: "image",
+                                attrs: { src: objectUrl, class: "image-asset-blob", "data-id-file": newAsset.asset.id },
+
+                            },
+                            {
+                                type: "paragraph",
+                                content: "",
+                            },
+                        ])
+                        .run();
+
+                })();
+            }
         },
+
         onUpdate: debounce(async ({ editor }) => {
             const content = editor.getJSON()
             if (!noteData) return
@@ -80,6 +131,23 @@ export default function NoteV2() {
 
         if (dataDetail.content != "") {
             const parse = JSON.parse(dataDetail.content) as JSONContent
+            const imageList = parse.content?.filter(content => content.type == 'image' && content?.attrs?.class.includes("image-asset-blob")).map(content => content?.attrs?.['data-id-file']) || []
+            const listImage = await getAssetsByListId(imageList)
+
+            parse.content?.map((node) => {
+                if (node.type == 'image' && node?.attrs?.class.includes("image-asset-blob")) {
+                    const imageId = node?.attrs?.['data-id-file']
+                    if (imageId) {
+                        const blob = listImage[imageId] as File
+
+                        const srcImage = URL.createObjectURL(blob)
+                        node.attrs.src = srcImage
+                    }
+
+                }
+                return node
+            })
+
             editorTipTap?.commands.setContent(parse)
         } else {
             editorTipTap?.commands.setContent("")
@@ -122,7 +190,7 @@ export default function NoteV2() {
                                 <span className='font-semibold'>{noteLabel}</span>
                             </div>
                         </div>
-                        <div className='px-8 py-10 font-comic-neue '>
+                        <div className='px-8 py-10 font-comic-neue overflow-y-scroll h-screen'>
                             <input type="text" value={noteLabel} className='font-bold text-xl w-full border-none outline-none'
                                 ref={refInputTitle}
                                 onChange={handleChangeLabel}

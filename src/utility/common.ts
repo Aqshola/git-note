@@ -10,3 +10,7 @@ export const debounce = (func: (args: any) => any, timeout = 300) => {
     }
 }
 
+export function randomFileName() {
+    return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+

@@ -74,3 +74,33 @@ export const itemSchema: RxJsonSchema<BaseItem> = {
     required: ["type", "label", "id", "content", "path", "counter"]
 
 }
+
+
+export interface BaseAsset {
+    id: string
+    label: string
+    type: string
+}
+
+export const assetSchema: RxJsonSchema<BaseAsset> = {
+    title: "ASSET SCHEMA",
+    version: 0,
+    primaryKey: "id",
+    type: "object",
+    properties: {
+        type: {
+            type: "string",
+        },
+        label: {
+            type: "string"
+        },
+        id: {
+            type: "string",
+            maxLength: 100,
+        },
+    },
+    attachments: {
+        encrypted: false // if true, the attachment-data will be encrypted with the db-password
+    },
+    required: ["label"]
+}
