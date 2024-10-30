@@ -7,11 +7,11 @@ type Props = {
 }
 
 export default function PageLayout(props: Readonly<Props>) {
-    return <div className="flex flex-col h-screen  overflow-hidden">
+    return <div className="flex flex-col h-screen">
         <Navbar />
-        <motion.div className='flex h-full relative'>
+        <div className='flex flex-1 h-full relative overflow-hidden'>
             <Sidebar />
             {props.children}
-        </motion.div>
+        </div>
     </div>
 }   

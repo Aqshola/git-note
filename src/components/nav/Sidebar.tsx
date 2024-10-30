@@ -1,11 +1,12 @@
 import { createNewFile, createNewFolder, createNewSubFile, createNewSubFolder, getListItem, updateFolderName } from '@/service/noteService'
 import { useUiStore } from '@/stores/uiStore'
-import { BaseItem } from '@/types/rxSchema'
+import { BaseAsset, BaseItem } from '@/types/rxSchema'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import Item from '../base/tree/Item'
 import { useActivityStore } from '@/stores/activityStore'
+import { getListAsset } from '@/service/assetService'
 
 export default function Sidebar() {
     const navAnimateVariant = {
@@ -26,6 +27,8 @@ export default function Sidebar() {
     const uiStore = useUiStore((state) => state)
     const activityStore = useActivityStore(state => state)
     const [folderTreeData, setFolderTreeData] = useState<BaseItem[]>([])
+    const [assetData, setAssetData] = useState<BaseAsset[]>([])
+    const [viewModeState, setViewModeState] = useState<'NOTE' | 'ASSET'>("NOTE")
 
     useEffect(() => {
         handleGetListFolder()
@@ -69,6 +72,11 @@ export default function Sidebar() {
         setFolderTreeData(data)
     }
 
+    async function handleGetListAsset() {
+        const data = await getListAsset()
+        setAssetData(data)
+    }
+
     async function handleRenameFolder(id: string, name: string) {
         await updateFolderName(id, name)
     }
@@ -77,12 +85,29 @@ export default function Sidebar() {
         await handleGetListFolder()
     }
 
+
+    async function handleSwitchViewMode(mode: 'NOTE' | 'ASSET') {
+
+        if (mode == 'NOTE') {
+            await handleGetListFolder()
+        }
+
+        if (mode == 'ASSET') {
+            await handleGetListAsset()
+        }
+        setViewModeState(mode)
+    }
+
+
+
+
+
     return <motion.div
         transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
         variants={navAnimateVariant}
         animate={uiStore.sidebar == "SHOW" ? 'show' : 'hide'}
         className={
-            clsx("border-r border-line-gray h-full  bg-white z-50 px-5 py-9 overflow-hidden",
+            clsx("border-r border-line-gray h-full  bg-white  flex flex-col z-50 px-5 pt-9 overflow-x-hidden",
                 "w-screen absolute top-0",
                 "md:min-w-[250px] md:max-w-[400px] md:relative")
 
@@ -108,23 +133,46 @@ export default function Sidebar() {
             </button>
         </div>
 
-        <div className='mt-10'>
-            <AnimatePresence mode='popLayout'>
-                {folderTreeData.map((el) => (
-                    <motion.div key={el.id} initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }} >
-                        <Item dataItem={el} callbackRename={handleRenameFolder}
-                            callbackNewSubFile={handleAddSubFile}
-                            callbackNewSubFolder={handleAddSubFolder}
-                            callbackDelete={handleDeleteFolder} />
-                    </motion.div>
-                ))}
-            </AnimatePresence>
+        <div className='mt-10 h-full overflow-hidden overflow-y-scroll'>
+            {viewModeState == "NOTE" && (
+                <AnimatePresence mode='popLayout'>
+                    {folderTreeData.map((el) => (
+                        <motion.div key={el.id} initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }} >
+                            <Item dataItem={el} callbackRename={handleRenameFolder}
+                                callbackNewSubFile={handleAddSubFile}
+                                callbackNewSubFolder={handleAddSubFolder}
+                                callbackDelete={handleDeleteFolder} />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            )}
 
+            {viewModeState == "ASSET" && (
+                <AnimatePresence mode='popLayout'>
+                    {assetData.map((el) => (
+                        <motion.div key={el.id} initial={{ opacity: 0 }}
+                            animate={{ opacity: 1, }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }} className='text-xs py-2  border-b cursor-pointer font-comic-neue'>
+                            {el.label}
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            )}
         </div>
 
+        <div className='p-5 border-t border-t-soft-gray flex justify-center gap-5 font-comic-neue'>
+
+            <button onClick={() => { handleSwitchViewMode("NOTE") }} className={clsx('text-sm font-semibold', viewModeState == 'NOTE' && 'text-purple-primary')}>
+                notes
+            </button>
+            <button onClick={() => { handleSwitchViewMode("ASSET") }} className={clsx('text-sm font-semibold', viewModeState == 'ASSET' && 'text-purple-primary')}>
+                assets
+            </button>
+        </div>
     </motion.div>
 
 }

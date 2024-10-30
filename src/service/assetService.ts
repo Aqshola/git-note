@@ -1,4 +1,5 @@
 import { useRxDb } from "@/libs/rxDb";
+import { BaseAsset } from "@/types/rxSchema";
 import { randomFileName } from "@/utility/common";
 import { blob } from "stream/consumers";
 
@@ -42,4 +43,11 @@ export async function getAssetsByListId(ids: Array<string>) {
 
 
 
+}
+
+export async function getListAsset() {
+    const db = await useRxDb()
+
+    const listAsset = await db.assets.find().exec()
+    return listAsset as BaseAsset[]
 }

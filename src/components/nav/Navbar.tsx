@@ -23,7 +23,7 @@ export default function Navbar() {
     }
     return (
 
-        <div className="b py-4 px-5 flex justify-between items-center border-b border-line-gray">
+        <div className="py-4 px-5 flex justify-between items-center border-b border-line-gray">
             <button onClick={toggleSidebarStatus}>
 
                 <motion.svg width="25" height="20" viewBox="0 0 25 20" fill="none" xmlns="http://www.w3.org/2000/svg">

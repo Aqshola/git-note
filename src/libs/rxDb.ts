@@ -11,7 +11,7 @@ let db: RxDatabase<{
 }>;
 
 export async function initRxDb() {
-    addRxPlugin(RxDBDevModePlugin); //should hide in prod, also have side effect add iframe in document body
+    // addRxPlugin(RxDBDevModePlugin); //should hide in prod, also have side effect add iframe in document body
     addRxPlugin(RxDBUpdatePlugin)
     addRxPlugin(RxDBAttachmentsPlugin)
     const init = await createRxDatabase({
