@@ -8,10 +8,27 @@ interface ActivityStore {
     updateFileId: string
 
     valueUpdateFileLabel: string
+
+    activeAssetId: string
+
+    refreshAssetList: boolean
+
+
+
+
+
     setActiveFile: (id: string) => void
     setupdateFileId: (value: string) => void
 
     setValueUpdateFileLabel: (value: string) => void
+
+    setActiveAssetId: (value: string) => void
+
+    setRefereshAssetList: (value: boolean) => void
+
+
+
+
 }
 
 
@@ -23,6 +40,11 @@ export const useActivityStore = create<ActivityStore>()(
             activeFileId: "",
             updateFileId: "",
             valueUpdateFileLabel: "",
+
+            activeAssetId: "",
+            refreshAssetList: false,
+
+
             setActiveFile(id) {
                 set(() => ({ activeFileId: id }))
             },
@@ -31,8 +53,14 @@ export const useActivityStore = create<ActivityStore>()(
             },
             setValueUpdateFileLabel(value) {
                 set(() => ({ valueUpdateFileLabel: value }))
-            }
+            },
+            setRefereshAssetList(value) {
+                set(() => ({ refreshAssetList: value }))
+            },
 
+            setActiveAssetId(value) {
+                set(() => ({ activeAssetId: value }))
+            }
         }),
         {
             name: STORE_NAME,

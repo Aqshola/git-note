@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react'
 import Item from '../base/tree/Item'
 import { useActivityStore } from '@/stores/activityStore'
 import { getListAsset } from '@/service/assetService'
+import AssetList from '../base/tree/AssetList'
+import { useNavigate } from 'react-router-dom'
 
 export default function Sidebar() {
     const navAnimateVariant = {
@@ -26,13 +28,41 @@ export default function Sidebar() {
 
     const uiStore = useUiStore((state) => state)
     const activityStore = useActivityStore(state => state)
+    const routeNavigate = useNavigate()
+
+
     const [folderTreeData, setFolderTreeData] = useState<BaseItem[]>([])
     const [assetData, setAssetData] = useState<BaseAsset[]>([])
     const [viewModeState, setViewModeState] = useState<'NOTE' | 'ASSET'>("NOTE")
 
     useEffect(() => {
-        handleGetListFolder()
-    }, [])
+        if (viewModeState == 'NOTE') {
+            handleGetListFolder()
+        }
+
+        if (viewModeState == 'ASSET') {
+            handleGetListAsset()
+        }
+    }, [viewModeState])
+
+    useEffect(() => {
+        if (activityStore.refreshAssetList && viewModeState == "ASSET") {
+            handleGetListAsset()
+            activityStore.setRefereshAssetList(false)
+        }
+
+    }, [activityStore.refreshAssetList, viewModeState])
+
+    useEffect(() => {
+        if (activityStore.activeAssetId != '') {
+            setViewModeState('ASSET')
+        }
+
+        if (activityStore.activeFileId != '') {
+            setViewModeState('NOTE')
+        }
+
+    }, [activityStore.activeAssetId, activityStore.activeFileId])
 
 
     async function handleAddFolder() {
@@ -47,8 +77,10 @@ export default function Sidebar() {
     async function handleAddFile() {
         const data = await createNewFile("Untitled")
         activityStore.setActiveFile(data.id)
+
         await handleGetListFolder()
         uiStore.hideSidebar()
+        routeNavigate('/note')
     }
 
     async function handleAddSubFolder(id: string) {
@@ -85,16 +117,12 @@ export default function Sidebar() {
         await handleGetListFolder()
     }
 
+    async function handleDeleteAsset() {
+        await handleGetListAsset()
+    }
+
 
     async function handleSwitchViewMode(mode: 'NOTE' | 'ASSET') {
-
-        if (mode == 'NOTE') {
-            await handleGetListFolder()
-        }
-
-        if (mode == 'ASSET') {
-            await handleGetListAsset()
-        }
         setViewModeState(mode)
     }
 
@@ -157,7 +185,7 @@ export default function Sidebar() {
                             animate={{ opacity: 1, }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }} className='text-xs py-2  border-b cursor-pointer font-comic-neue'>
-                            {el.label}
+                            <AssetList dataAsset={el} callbackDeleteAsset={handleDeleteAsset} />
                         </motion.div>
                     ))}
                 </AnimatePresence>

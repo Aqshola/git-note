@@ -80,6 +80,8 @@ export interface BaseAsset {
     id: string
     label: string
     type: string
+
+    createdAt: string //from rxdb,
 }
 
 export const assetSchema: RxJsonSchema<BaseAsset> = {
@@ -97,6 +99,10 @@ export const assetSchema: RxJsonSchema<BaseAsset> = {
         id: {
             type: "string",
             maxLength: 100,
+        },
+        createdAt: {
+            "type": "string",
+            "format": "date-time",
         },
     },
     attachments: {

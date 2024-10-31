@@ -1,4 +1,5 @@
 import GlobalLayout from "@/components/layout/GlobalLayout";
+import AssetPreview from "@/pages/AssetPreview";
 import Landing from "@/pages/Landing";
 import NoteV2 from "@/pages/NoteV2";
 
@@ -17,6 +18,10 @@ const routes = createBrowserRouter([
             {
                 path: "/note",
                 element: <NoteV2 />
+            },
+            {
+                path: "/asset-preview",
+                element: <AssetPreview />
             },
 
             {

@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import Navbar from "@/components/nav/Navbar"
 import Sidebar from '../nav/Sidebar'
 

@@ -5,6 +5,7 @@ import Popover from "../popup/Popover"
 import { getListSubItem, deleteFolder } from "@/service/noteService"
 import { AnimatePresence, motion } from 'framer-motion'
 import { useActivityStore } from "@/stores/activityStore"
+import { useNavigate } from "react-router-dom"
 
 
 interface Props {
@@ -25,6 +26,8 @@ interface Props {
 
 export default function Item(props: Readonly<Props>) {
 
+
+    const routeNavigate = useNavigate()
     const activityStore = useActivityStore(state => state)
 
     const refInputLabel = useRef<HTMLInputElement>(null)
@@ -33,6 +36,7 @@ export default function Item(props: Readonly<Props>) {
     const [listSubFolder, setListSubFolder] = useState<BaseItem[]>([])
     const [contentCount, setContentCount] = useState<number>(props.dataItem.childrenIds?.length ?? 0)
     const [itemName, setItemName] = useState<string>(props.dataItem.label)
+
 
 
 
@@ -63,7 +67,10 @@ export default function Item(props: Readonly<Props>) {
     async function handleToggleOpenItem(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         e.stopPropagation()
         if (props.dataItem.type == 'FILE') {
+
             activityStore.setActiveFile(props.dataItem.id)
+            routeNavigate("/note")
+            activityStore.setActiveAssetId("")
             return
         }
         const newValue = !openSubFolderMode

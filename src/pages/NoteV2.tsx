@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react'
 import debounce from 'lodash.debounce'
 import Image from "@tiptap/extension-image";
 import { getAssetsByListId, saveAsset } from '@/service/assetService'
+import { EditorView } from '@tiptap/pm/view'
 
 
 export default function NoteV2() {
@@ -51,36 +52,8 @@ export default function NoteV2() {
             attributes: {
                 class: "min-h-screen border-none outline-none text-sm  font-comic-neue ",
             },
-            handlePaste(editor, event, __) {
-                (async () => {
-                    const items = event.clipboardData?.items;
-                    if (!items || items.length == 0) return false;
-                    event.preventDefault();
-
-                    const blob = items[0].getAsFile();
-                    if (!blob) return false;
-
-                    const newAsset = await saveAsset(blob)
-                    await newAsset.attach
-
-                    const objectUrl = URL.createObjectURL(blob)
-                    if (!editorTipTap) return
-                    editorTipTap.chain()
-                        .focus()
-                        .insertContent([
-                            {
-                                type: "image",
-                                attrs: { src: objectUrl, class: "image-asset-blob w-full md:max-w-[500px]", "data-id-file": newAsset.asset.id },
-
-                            },
-                            {
-                                type: "paragraph",
-                                content: "",
-                            },
-                        ])
-                        .run();
-
-                })();
+            handlePaste(_, event, __) {
+                handlePasteContent(event)
             }
         },
 
@@ -140,8 +113,10 @@ export default function NoteV2() {
                     if (imageId) {
                         const blob = listImage[imageId] as File
 
-                        const srcImage = URL.createObjectURL(blob)
-                        node.attrs.src = srcImage
+                        if (blob) {
+                            const srcImage = URL.createObjectURL(blob)
+                            node.attrs.src = srcImage
+                        }
                     }
 
                 }
@@ -157,9 +132,40 @@ export default function NoteV2() {
 
     async function handleBlurLabel(e: React.FocusEvent<HTMLInputElement, Element>) {
         e.stopPropagation()
-        await updateFileName(noteData?.id || "", e.target.value)
+        await updateFileName(noteData?.id ?? "", e.target.value)
         activityStore.setValueUpdateFileLabel(e.target.value)
-        activityStore.setupdateFileId(noteData?.id || '')
+        activityStore.setupdateFileId(noteData?.id ?? '')
+    }
+
+    async function handlePasteContent(event: ClipboardEvent) {
+        const items = event.clipboardData?.items;
+        if (!items || items.length == 0) return false;
+        event.preventDefault();
+
+        const blob = items[0].getAsFile();
+        if (!blob) return false;
+
+        const newAsset = await saveAsset(blob)
+        await newAsset.attach
+
+        const objectUrl = URL.createObjectURL(blob)
+        if (!editorTipTap) return
+        editorTipTap.chain()
+            .focus()
+            .insertContent([
+                {
+                    type: "image",
+                    attrs: { src: objectUrl, class: "image-asset-blob h-auto md:max-w-[500px]", "data-id-file": newAsset.asset.id },
+
+                },
+                {
+                    type: "paragraph",
+                    content: "",
+                },
+            ])
+            .run();
+
+        activityStore.setRefereshAssetList(true)
     }
 
 
