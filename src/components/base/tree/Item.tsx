@@ -70,7 +70,7 @@ export default function Item(props: Readonly<Props>) {
 
             activityStore.setActiveFile(props.dataItem.id)
             routeNavigate("/note")
-            activityStore.setActiveAssetId("")
+            // activityStore.setActiveAssetId("")
             return
         }
         const newValue = !openSubFolderMode

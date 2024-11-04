@@ -174,41 +174,41 @@ export default function NoteV2() {
 
 
     return (
-        <PageLayout>
-            <motion.div className="w-full  flex flex-col mx-auto h-full overflow-hidden relative box-border" transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}>
-                {activityStore.activeFileId == '' && (
-                    <div className='w-full flex flex-col h-full  items-center '>
-                        <h2 className='text-center text-2xl font-comic-neue font-bold mt-32'>No File is open</h2>
-                        <button className='mt-5 text-purple-primary'>Create new note</button>
-                    </div>
-                )}
-                {activityStore.activeFileId != '' && (
 
-                    <div className='flex flex-col w-full  px-0 md:px-36 overflow-y-scroll'>
-                        <div className='flex gap-2 text-xs font-comic-neue font-light w-fit flex-wrap justify-center mx-auto mt-3'>
-                            {listPath.map((item) => (
-                                <div key={item.id}>
-                                    <span className='mr-1'>{item.label}</span>
-                                    <span>/</span>
-                                </div>
-                            ))}
-                            <div >
-                                <span className='font-semibold'>{noteLabel}</span>
+        <motion.div className="w-full  flex flex-col mx-auto h-full overflow-hidden relative box-border" transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}>
+            {activityStore.activeFileId == '' && (
+                <div className='w-full flex flex-col h-full  items-center '>
+                    <h2 className='text-center text-2xl font-comic-neue font-bold mt-32'>No File is open</h2>
+                    <button className='mt-5 text-purple-primary'>Create new note</button>
+                </div>
+            )}
+            {activityStore.activeFileId != '' && (
+
+                <div className='flex flex-col w-full  px-0 md:px-36 overflow-y-scroll'>
+                    <div className='flex gap-2 text-xs font-comic-neue font-light w-fit flex-wrap justify-center mx-auto mt-3'>
+                        {listPath.map((item) => (
+                            <div key={item.id}>
+                                <span className='mr-1'>{item.label}</span>
+                                <span>/</span>
                             </div>
-                        </div>
-                        <div className='px-8 py-10 font-comic-neue h-full box-border'>
-                            <input type="text" value={noteLabel} className='font-bold text-xl w-full border-none outline-none'
-                                ref={refInputTitle}
-                                onChange={handleChangeLabel}
-                                onBlurCapture={handleBlurLabel}
-                                onKeyDown={handleLabelEnterPressed}
-                            />
-
-                            <EditorContent editor={editorTipTap} className='mt-3 h-full' />
+                        ))}
+                        <div >
+                            <span className='font-semibold'>{noteLabel}</span>
                         </div>
                     </div>
-                )}
-            </motion.div>
-        </PageLayout>
+                    <div className='px-8 py-10 font-comic-neue h-full box-border'>
+                        <input type="text" value={noteLabel} className='font-bold text-xl w-full border-none outline-none'
+                            ref={refInputTitle}
+                            onChange={handleChangeLabel}
+                            onBlurCapture={handleBlurLabel}
+                            onKeyDown={handleLabelEnterPressed}
+                        />
+
+                        <EditorContent editor={editorTipTap} className='mt-3 h-full' />
+                    </div>
+                </div>
+            )}
+        </motion.div>
+
     )
 }

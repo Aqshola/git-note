@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import AnimatedOutlet from "../animate/AnimatedOutlet";
+import PageLayout from "./PageLayout";
 
 export default function GlobalLayout() {
     const location = useLocation()
@@ -21,7 +22,14 @@ export default function GlobalLayout() {
 
     }
 
+    const routeDashboard = ['/note', '/asset-preview']
 
+    const useDashboardLayout = routeDashboard.includes(location.pathname)
+
+
+    if (useDashboardLayout) {
+        return <PageLayout><Outlet /></PageLayout>
+    }
     return <AnimatePresence mode="wait">
 
         <motion.div className="max-w-screen-2xl overflow-x-hidden mx-auto" key={location.pathname}>

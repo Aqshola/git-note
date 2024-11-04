@@ -1,4 +1,5 @@
 import GlobalLayout from "@/components/layout/GlobalLayout";
+import PageLayout from "@/components/layout/PageLayout";
 import AssetPreview from "@/pages/AssetPreview";
 import Landing from "@/pages/Landing";
 import NoteV2 from "@/pages/NoteV2";
@@ -9,12 +10,13 @@ import { createBrowserRouter } from "react-router-dom";
 const routes = createBrowserRouter([
     {
         element: <GlobalLayout />,
-        path: "",
+
         children: [
             {
-                path: "/",
+                index: true,
                 element: <Landing />
             },
+
             {
                 path: "/note",
                 element: <NoteV2 />

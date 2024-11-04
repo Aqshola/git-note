@@ -13,6 +13,8 @@ interface ActivityStore {
 
     refreshAssetList: boolean
 
+    viewMode: 'NOTE' | 'ASSET'
+
 
 
 
@@ -25,6 +27,8 @@ interface ActivityStore {
     setActiveAssetId: (value: string) => void
 
     setRefereshAssetList: (value: boolean) => void
+
+    setViewMode: (value: 'NOTE' | 'ASSET') => void
 
 
 
@@ -43,6 +47,7 @@ export const useActivityStore = create<ActivityStore>()(
 
             activeAssetId: "",
             refreshAssetList: false,
+            viewMode: "NOTE",
 
 
             setActiveFile(id) {
@@ -60,6 +65,10 @@ export const useActivityStore = create<ActivityStore>()(
 
             setActiveAssetId(value) {
                 set(() => ({ activeAssetId: value }))
+            },
+
+            setViewMode(value) {
+                set(() => ({ viewMode: value }))
             }
         }),
         {

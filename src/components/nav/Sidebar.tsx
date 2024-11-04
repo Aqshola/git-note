@@ -33,36 +33,24 @@ export default function Sidebar() {
 
     const [folderTreeData, setFolderTreeData] = useState<BaseItem[]>([])
     const [assetData, setAssetData] = useState<BaseAsset[]>([])
-    const [viewModeState, setViewModeState] = useState<'NOTE' | 'ASSET'>("NOTE")
 
     useEffect(() => {
-        if (viewModeState == 'NOTE') {
+        if (activityStore.viewMode == 'NOTE') {
             handleGetListFolder()
         }
+        handleGetListAsset()
+    }, [])
 
-        if (viewModeState == 'ASSET') {
-            handleGetListAsset()
-        }
-    }, [viewModeState])
 
     useEffect(() => {
-        if (activityStore.refreshAssetList && viewModeState == "ASSET") {
+        if (activityStore.refreshAssetList && activityStore.viewMode == "ASSET") {
             handleGetListAsset()
             activityStore.setRefereshAssetList(false)
         }
 
-    }, [activityStore.refreshAssetList, viewModeState])
+    }, [activityStore.refreshAssetList, activityStore.viewMode])
 
-    useEffect(() => {
-        if (activityStore.activeAssetId != '') {
-            setViewModeState('ASSET')
-        }
 
-        if (activityStore.activeFileId != '') {
-            setViewModeState('NOTE')
-        }
-
-    }, [activityStore.activeAssetId, activityStore.activeFileId])
 
 
     async function handleAddFolder() {
@@ -123,7 +111,16 @@ export default function Sidebar() {
 
 
     async function handleSwitchViewMode(mode: 'NOTE' | 'ASSET') {
-        setViewModeState(mode)
+        activityStore.setViewMode(mode)
+
+        if (mode == 'NOTE') {
+            setAssetData([])
+            await handleGetListFolder()
+            return
+        }
+
+        setFolderTreeData([])
+        await handleGetListAsset()
     }
 
 
@@ -162,7 +159,7 @@ export default function Sidebar() {
         </div>
 
         <div className='mt-10 h-full overflow-hidden overflow-y-scroll'>
-            {viewModeState == "NOTE" && (
+            {activityStore.viewMode == "NOTE" && (
                 <AnimatePresence mode='popLayout'>
                     {folderTreeData.map((el) => (
                         <motion.div key={el.id} initial={{ opacity: 0, height: 0 }}
@@ -178,7 +175,7 @@ export default function Sidebar() {
                 </AnimatePresence>
             )}
 
-            {viewModeState == "ASSET" && (
+            {activityStore.viewMode == "ASSET" && (
                 <AnimatePresence mode='popLayout'>
                     {assetData.map((el) => (
                         <motion.div key={el.id} initial={{ opacity: 0 }}
@@ -194,10 +191,10 @@ export default function Sidebar() {
 
         <div className='p-5 border-t border-t-soft-gray flex justify-center gap-5 font-comic-neue'>
 
-            <button onClick={() => { handleSwitchViewMode("NOTE") }} className={clsx('text-sm font-semibold', viewModeState == 'NOTE' && 'text-purple-primary')}>
+            <button onClick={() => { handleSwitchViewMode("NOTE") }} className={clsx('text-sm font-semibold', activityStore.viewMode == 'NOTE' && 'text-purple-primary')}>
                 notes
             </button>
-            <button onClick={() => { handleSwitchViewMode("ASSET") }} className={clsx('text-sm font-semibold', viewModeState == 'ASSET' && 'text-purple-primary')}>
+            <button onClick={() => { handleSwitchViewMode("ASSET") }} className={clsx('text-sm font-semibold', activityStore.viewMode == 'ASSET' && 'text-purple-primary')}>
                 assets
             </button>
         </div>
