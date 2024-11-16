@@ -6,9 +6,10 @@ import ReactDom from "react-dom";
 type Props = {
     children: React.ReactNode,
     buttonChildren: React.ReactNode
+    position?: 'top' | 'bottom'
 }
 
-export default function Popover(props: Readonly<Props>) {
+export default function Popover({ position = 'bottom', ...props }: Readonly<Props>) {
     const refParentPopover = useRef<HTMLDivElement>(null)
     const refPopover = useRef<HTMLDivElement>(null);
     const refButtonPopover = useRef<HTMLButtonElement>(null)
@@ -24,8 +25,25 @@ export default function Popover(props: Readonly<Props>) {
         const parentRect = refParentPopover.current.getBoundingClientRect()
         const popoverRect = refPopover.current.getBoundingClientRect()
 
-        const newTranslateX = parentRect.left + parentRect.width / 2 - popoverRect.width
-        const newTranslateY = parentRect.top + parentRect.height
+        let newTranslateX = parentRect.left + (parentRect.width / 2) - (popoverRect.width / 2) // Center horizontally
+        let newTranslateY = parentRect.bottom + 8 // Default spacing
+
+        if (position === 'top') {
+            newTranslateY = parentRect.top - popoverRect.height - 8 // Place above with spacing
+        } else if (position === 'bottom') {
+            newTranslateY = parentRect.bottom + 8 // Place below with spacing
+        }
+
+        // Optional: Add boundary checks
+        const viewportWidth = window.innerWidth
+        const viewportHeight = window.innerHeight
+
+        // Prevent horizontal overflow
+        newTranslateX = Math.max(8, Math.min(newTranslateX, viewportWidth - popoverRect.width - 8))
+
+        // Prevent vertical overflow
+        newTranslateY = Math.max(8, Math.min(newTranslateY, viewportHeight - popoverRect.height - 8))
+
 
         setTranslate({
             x: newTranslateX,

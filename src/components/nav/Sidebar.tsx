@@ -9,6 +9,8 @@ import { useActivityStore } from '@/stores/activityStore'
 import { getListAsset } from '@/service/assetService'
 import AssetList from '../base/tree/AssetList'
 import { useNavigate } from 'react-router-dom'
+import { useViewport } from 'reactflow'
+import { useCheckViewPort } from '@/hooks/useCheckViewport'
 
 export default function Sidebar() {
     const navAnimateVariant = {
@@ -29,6 +31,7 @@ export default function Sidebar() {
     const uiStore = useUiStore((state) => state)
     const activityStore = useActivityStore(state => state)
     const routeNavigate = useNavigate()
+    const viewport = useCheckViewPort()
 
 
     const [folderTreeData, setFolderTreeData] = useState<BaseItem[]>([])
@@ -50,6 +53,13 @@ export default function Sidebar() {
 
     }, [activityStore.refreshAssetList, activityStore.viewMode])
 
+    useEffect(() => {
+        if (viewport == 'DESKTOP') {
+            uiStore.showSidebar()
+        }
+    }, [])
+
+
 
 
 
@@ -67,7 +77,10 @@ export default function Sidebar() {
         activityStore.setActiveFile(data.id)
 
         await handleGetListFolder()
-        uiStore.hideSidebar()
+
+        if (viewport == 'MOBILE') {
+            uiStore.hideSidebar()
+        }
         routeNavigate('/note')
     }
 
