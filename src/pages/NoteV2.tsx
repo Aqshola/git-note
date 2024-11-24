@@ -1,7 +1,7 @@
 
 import { getDetailFile, getItemPath, saveContent, updateFileName } from '@/service/noteService'
 import { useActivityStore } from '@/stores/activityStore'
-import { BaseItem } from '@/types/rxSchema'
+import { BaseAsset, BaseItem } from '@/types/rxSchema'
 import CodeBlock from '@tiptap/extension-code-block'
 import { EditorContent, JSONContent, useEditor, FloatingMenu, } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -9,8 +9,9 @@ import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import debounce from 'lodash.debounce'
 import Image from "@tiptap/extension-image";
-import { getAssetsByListId, saveAsset } from '@/service/assetService'
+import { getAssetById, getAssetsByListId, getListAsset, saveAsset } from '@/service/assetService'
 import { Popover } from 'react-tiny-popover'
+import Modal from '@/components/base/popup/Modal'
 
 
 
@@ -24,9 +25,12 @@ export default function NoteV2() {
 
     const [noteData, setNoteData] = useState<BaseItem>()
     const [listPath, setListPath] = useState<Array<{ id: string, label: string }>>([])
+    const [listAsset, setListAsset] = useState<Array<BaseAsset>>([])
     const [noteLabel, setNoteLabel] = useState<string>("")
     const [noteContent, setNoteContent] = useState<string>()
     const [showSubMenuImage, setShowSubMenuImage] = useState(false)
+    const [showModalLinkImage, setShowModalLinkImage] = useState(false)
+
 
 
 
@@ -219,6 +223,45 @@ export default function NoteV2() {
 
     }
 
+    async function handleShowModalLinkImage() {
+        setShowSubMenuImage(false)
+        setShowModalLinkImage(!showModalLinkImage)
+        await handleGetListAsset()
+    }
+
+    function handleHideModalLinkImage() {
+        setShowModalLinkImage(false)
+        setListAsset([])
+    }
+
+    async function handleGetListAsset() {
+        const data = await getListAsset()
+        setListAsset(data)
+    }
+
+    async function handleChooseImageLink(id: string) {
+        const data = await getAssetById(id)
+        if (!data) return
+        const url = URL.createObjectURL(data.blob)
+        if (!editorTipTap) return
+        editorTipTap.chain()
+            .focus()
+            .insertContent([
+                {
+                    type: "image",
+                    attrs: { src: url, class: "image-asset-blob h-auto md:max-w-[500px]", "data-id-file": id },
+                },
+                {
+                    type: "paragraph",
+                    content: "",
+                },
+            ])
+            .run();
+
+        handleHideModalLinkImage()
+
+    }
+
 
 
 
@@ -266,9 +309,9 @@ export default function NoteV2() {
 
                 <input type="file" className='hidden' ref={refInputImage} onChange={handleChangeUpload} />
                 <Popover onClickOutside={() => { setShowSubMenuImage(false) }} isOpen={showSubMenuImage} positions={"top"} padding={10} content={
-                    <div className='text-xs flex flex-col items-start shadow-sm p-1 rounded'>
+                    <div className='text-xs flex flex-col items-start shadow-sm p-1 rounded bg-white'>
                         <button onClick={handleUploadImage} className='hover:bg-gray-200 p-2 transition-colors w-full'>Upload Image</button>
-                        <button className='hover:bg-gray-200 p-2 transition-colors w-full'>Link Image</button>
+                        <button onClick={handleShowModalLinkImage} className='hover:bg-gray-200 p-2 transition-colors w-full'>Link Image</button>
                     </div>
                 }>
                     <button onClick={() => { setShowSubMenuImage(!showSubMenuImage) }}>
@@ -286,6 +329,17 @@ export default function NoteV2() {
 
 
             </div>
+
+            <Modal show={showModalLinkImage} onClickOutside={handleHideModalLinkImage}>
+                <h5>List Image</h5>
+                <div className='flex flex-col mt-5'>
+                    {listAsset.map((el) => (
+                        <div className='text-xs border p-2 w-96 cursor-pointer' key={el.id} onClick={() => handleChooseImageLink(el.id)}>
+                            {el.label}
+                        </div>
+                    ))}
+                </div>
+            </Modal>
         </motion.div>
 
     )
