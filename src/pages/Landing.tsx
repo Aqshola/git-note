@@ -4,6 +4,7 @@ import TypingText from "@/components/animate/TypingText";
 import SketchButton from "@/components/base/button/SketchButton";
 import SketchLink from "@/components/base/link/SketchLink";
 import { RoughNotation } from "react-rough-notation";
+import { Link } from "react-router-dom";
 
 export default function Landing2() {
     return (
@@ -40,7 +41,9 @@ export default function Landing2() {
                         by writing, drawing, and syncing notes seamlessly across all your devices</p>
                 </div>
                 <div className="justify-center flex gap-5 font-comic-neue mt-8 items-center">
-                    <SketchButton>Join</SketchButton>
+                    <Link to={'/sign-in'}>
+                        <SketchButton>Join</SketchButton>
+                    </Link>
                     <p>Or</p>
                     <SketchLink size="lg" to="/note" sketchColor="#FFC04F">
                         Just Write
