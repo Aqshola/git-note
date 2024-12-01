@@ -6,11 +6,16 @@ interface UiState {
     nav: "SHOW" | "HIDE"
     sidebar: "SHOW" | "HIDE"
 
+    settingBar: "SHOW" | "HIDE"
+
     showNav: () => void
     hideNav: () => void
 
     showSidebar: () => void
     hideSidebar: () => void
+
+    showSettingBar: () => void
+    hideSettingBar: () => void
 
 }
 
@@ -22,12 +27,16 @@ export const useUiStore = create<UiState>()(
         (set) => ({
             nav: "HIDE",
             sidebar: "HIDE",
+            settingBar: "HIDE",
 
             showNav() { set(() => ({ nav: "SHOW", })) },
             hideNav() { set(() => ({ nav: "HIDE", })) },
 
             showSidebar() { set(() => ({ sidebar: "SHOW", })) },
             hideSidebar() { set(() => ({ sidebar: "HIDE", })) },
+
+            showSettingBar() { set(() => ({ settingBar: "SHOW", })) },
+            hideSettingBar() { set(() => ({ settingBar: "HIDE", })) },
 
 
         }),
