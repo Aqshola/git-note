@@ -12,6 +12,8 @@ interface Props {
     children: React.ReactNode
     size?: keyof typeof STYLE_SIZE,
     className?: string
+
+    childrenClass?: string
 }
 export default function SketchButton({ size = "base", ...props }: Props) {
     const refButton = useRef<HTMLButtonElement>(null)
@@ -54,9 +56,11 @@ export default function SketchButton({ size = "base", ...props }: Props) {
             active:translate-y-1  
             hover:-translate-y-0.5
         `, STYLE_SIZE[size], props.className)} ref={refButton}>
-        {props.children}
-        <div className="absolute top-0 left-0 right-0 bottom-0">
-            <svg className="block w-fit h-fit active:shadow-none  hover:shadow-3d" ref={refSvg}></svg>
+        <div className="relative z-10">
+            {props.children}
+        </div>
+        <div className="absolute top-0 left-0 right-0 bottom-0 ">
+            <svg className={clsx("block w-fit h-fit active:shadow-none  hover:shadow-3d", props.childrenClass)} ref={refSvg}></svg>
         </div>
     </button>
 

@@ -15,7 +15,6 @@ export default function Landing2() {
                     <SketchLink to="/about">About</SketchLink>
                     <SketchLink to="/help">Help</SketchLink>
                     <SketchButton size="sm">Login</SketchButton>
-
                 </div>
             </nav>
 
